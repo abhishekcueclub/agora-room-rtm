@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 export default function MediaPlayer(props) {
   const container = useRef(null);
@@ -18,7 +18,7 @@ export default function MediaPlayer(props) {
   }, [container, videoTrack]);
 
   useEffect(() => {
-    if (audioTrack) {
+    if (audioTrack && !props?.isSelf) {
       audioTrack.play();
       return () => {
         audioTrack.stop();

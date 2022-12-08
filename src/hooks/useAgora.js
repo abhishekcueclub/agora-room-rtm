@@ -13,15 +13,20 @@ export default function useAgora(client) {
   const [joinState, setJoinState] = useState(false);
 
   const [remoteUsers, setRemoteUsers] = useState([]);
-  const [muteVideoState, setMuteVideoState] = useState(true)
-  const [muteAudioState, setMuteAudioState] = useState(true)
+  const [muteVideoState, setMuteVideoState] = useState(false)
+  const [muteAudioState, setMuteAudioState] = useState(false)
 
 
   async function muteVideo() {
     if (localVideoTrack != null) {
       console.log("muteVideo: ", localVideoTrack)
       localVideoTrack.setEnabled(muteVideoState)
+      // muteVideoState
+      //   ? client.muteVideo()
+      //   : client.unmuteVideo()
+
       setMuteVideoState(!muteVideoState)
+
     }
   }
 
@@ -31,6 +36,11 @@ export default function useAgora(client) {
 
       console.log("MuteAudioState: ", muteAudioState)
       localAudioTrack.setEnabled(muteAudioState)
+
+      // muteAudioState
+      //   ? client.muteAudio()
+      //   : client.unmuteAudio()
+
       setMuteAudioState(!muteAudioState)
     }
   }
@@ -45,6 +55,7 @@ export default function useAgora(client) {
     );
     // microphoneTrack.setEnabled(false)
     // cameraTrack.setEnabled(false)
+    cameraTrack.play('me');
 
     console.log(cameraTrack);
 
@@ -58,10 +69,10 @@ export default function useAgora(client) {
     if (!client) return;
     const [microphoneTrack, cameraTrack] = await createLocalTracks();
 
-    await client.join(appid, channel, token,);
+    await client.join(appid, channel, token);
     await client.publish([microphoneTrack, cameraTrack]);
-    microphoneTrack.setEnabled(false)
-    cameraTrack.setEnabled(false)
+    // microphoneTrack.setEnabled(false)
+    // cameraTrack.setEnabled(false)
 
     setJoinState(true);
   }

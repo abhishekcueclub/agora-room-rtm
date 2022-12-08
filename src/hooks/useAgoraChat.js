@@ -1,18 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import AgoraRTM from "agora-rtm-sdk";
 import randomColor from "randomcolor";
+
+// import AgoraRTM from "agora-rtm-sdk";
+
 
 let USER_ID = Math.floor(Math.random() * 100000001);
 
 export default function useAgoraChat(client, channelName) {
-  const [joinState, setJoinState] = useState(false);
+  // const [joinState, setJoinState] = useState(false);
 
   let [messages, setMessages] = useState([]);
+  // eslint-disable-next-line
   let [members, setMembers] = useState([]);
 
   let [currentMessage, setCurrentMessage] = useState();
-
+  // eslint-disable-next-line
   let color = useRef(randomColor({ luminosity: "dark" })).current;
   let channel = useRef(client.createChannel(channelName)).current;
 
@@ -47,9 +50,10 @@ export default function useAgoraChat(client, channelName) {
       color
     });
   };
-
+  // eslint-disable-next-line
   useEffect(() => {
     initRm();
+    // eslint-disable-next-line
   }, [USER_ID]);
 
   useEffect(() => {
@@ -99,6 +103,7 @@ export default function useAgoraChat(client, channelName) {
 
   useEffect(() => {
     if (currentMessage) setMessages([...messages, currentMessage]);
+    // eslint-disable-next-line
   }, [currentMessage]);
 
   return { messages, sendChannelMessage, color };

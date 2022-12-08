@@ -15,13 +15,15 @@ const chatClient = AgoraRTM.createInstance("2e5346b36d1f40b1bbc62472116d96de");
 
 export default function App() {
   const [channel, setChannel] = useState("demo_channel");
+  // eslint-disable-next-line
   const [appid, setAppid] = useState("741e61921b284f4dbbcfebc196bcd338");
+  // eslint-disable-next-line
   const [token, setToken] = useState("default");
 
   let channelName = channel;
 
   const [textArea, setTextArea] = useState();
-
+  // eslint-disable-next-line
   const { messages, sendChannelMessage, color } = useAgoraChat(
     chatClient,
     channelName
@@ -39,7 +41,7 @@ export default function App() {
     muteVideoState,
     muteAudioState
   } = useAgora(client);
-
+  // eslint-disable-next-line
   function submitMessage(event) {
     console.log(event);
     if (event.keyCode === 13) {
@@ -91,7 +93,7 @@ export default function App() {
             className="btn btn-primary btn-sm"
             disabled={joinState}
             onClick={() => {
-              join(channel, null);
+              join(channel, "007eJxTYJj2fdZ5oUNNAjxfWMIeH3K+9eKwXILLbMvVNwzWFYlM3PlUgcHcxDDVzNDSyDDJyMIkzSQlKSk5LTUp2dDSLCk5xdjYgufyxOSGQEaG2D2ZrIwMEAji8zCkpObmxydnJOblpeYwMAAA0xskGw==");
             }}
           >
             Join
@@ -126,6 +128,7 @@ export default function App() {
             {joinState && localVideoTrack ? `(${client.uid})` : ""}
           </p> */}
           <MediaPlayer
+            isSelf={true}
             videoTrack={localVideoTrack}
             audioTrack={localAudioTrack}
           ></MediaPlayer>
@@ -166,6 +169,7 @@ export default function App() {
               {/* <p>Remote Player + {user.uid} </p> */}
               {/* //   <p className="remote-player-text">{`remoteVideo(${user.uid})`}</p> */}
               <MediaPlayer
+                isSelf={false}
                 videoTrack={user.videoTrack}
                 audioTrack={user.audioTrack}
               ></MediaPlayer>
