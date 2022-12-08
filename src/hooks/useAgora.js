@@ -55,7 +55,7 @@ export default function useAgora(client) {
     );
     // microphoneTrack.setEnabled(false)
     // cameraTrack.setEnabled(false)
-    cameraTrack.play('me');
+    // cameraTrack.play('me');
 
     console.log(cameraTrack);
 

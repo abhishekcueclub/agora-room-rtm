@@ -68,7 +68,7 @@ export default function useAgoraChat(client, channelName) {
     channel.on("MessageFromPeer", async (message, memberId) => {
       console.log(memberId + "==>MessageFromPeer", JSON.stringify(message))
     });
-  });
+  }, []);
 
   async function handleMessageReceived(data, uid) {
     let user = await client.getUserAttributes(uid);
