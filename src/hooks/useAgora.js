@@ -13,8 +13,8 @@ export default function useAgora(client) {
   const [joinState, setJoinState] = useState(false);
 
   const [remoteUsers, setRemoteUsers] = useState([]);
-  const [muteVideoState, setMuteVideoState] = useState(false)
-  const [muteAudioState, setMuteAudioState] = useState(false)
+  const [muteVideoState, setMuteVideoState] = useState(true)
+  const [muteAudioState, setMuteAudioState] = useState(true)
 
 
   async function muteVideo() {
@@ -71,8 +71,8 @@ export default function useAgora(client) {
 
     await client.join(appid, channel, token);
     await client.publish([microphoneTrack, cameraTrack]);
-    // microphoneTrack.setEnabled(false)
-    // cameraTrack.setEnabled(false)
+    microphoneTrack.setEnabled(false)
+    cameraTrack.setEnabled(false)
 
     setJoinState(true);
   }
