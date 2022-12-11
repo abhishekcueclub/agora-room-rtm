@@ -7,6 +7,10 @@ import { useEffect, useState } from "react";
 export default function useAgora(client) {
   const appid = "2e5346b36d1f40b1bbc62472116d96de";
 
+  // const [userId, setUserId] = useState(null);
+  const [username, setUsername] = useState("abhishek");
+  const [currentSpeaker, setCurrentSpeaker] = useState("");
+
   const [localVideoTrack, setLocalVideoTrack] = useState(null);
   const [localAudioTrack, setLocalAudioTrack] = useState(null);
 
@@ -45,6 +49,10 @@ export default function useAgora(client) {
     }
   }
 
+
+  async function updateUsername(name) {
+    setUsername(name)
+  }
   async function createLocalTracks() {
     const [
       microphoneTrack,
@@ -65,16 +73,20 @@ export default function useAgora(client) {
     return [microphoneTrack, cameraTrack];
   }
 
-  async function join(channel, token, uid) {
+  async function join(channel, token, initRm, username_detail) {
     if (!client) return;
+
+    console.log("Join --- 1")
     const [microphoneTrack, cameraTrack] = await createLocalTracks();
 
-    await client.join(appid, channel, token);
+    await client.join(appid, channel, token, username_detail);
     await client.publish([microphoneTrack, cameraTrack]);
     microphoneTrack.setEnabled(false)
     cameraTrack.setEnabled(false)
-
     setJoinState(true);
+    console.log("Join --- 2")
+    initRm(username_detail)
+
   }
 
   async function leave() {
@@ -97,33 +109,55 @@ export default function useAgora(client) {
 
     const handleUserPublished = async (user, mediaType) => {
       await client.subscribe(user, mediaType);
+      console.log("agora----handleUserPublished user===>", user)
+
       // toggle rerender while state of remoteUsers changed.
       setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
     };
 
     const handleUserUnpublished = (user) => {
+      console.log("agora----handleUserUnpublished user===>", user)
+
       setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
     };
 
     const handleUserJoined = (user) => {
-      console.log("setRemoteUsers user===>", user)
+      console.log("agora----handleUserJoined user===>", user)
+      // setUserId(user)
+
       setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
     };
 
     const handleUserLeft = (user) => {
+      console.log("agora----handleUserLeft user===>", user)
+
       setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
+    };
+
+    const highlightingaSpeaker = (user) => {
+      // console.log("agora----highlightingaSpeaker user===>", user)
+      user.forEach((volume) => {
+        // console.log(`UID ${volume.uid} Level ${volume.level}`);
+
+        if (volume.level > 5) {
+          setCurrentSpeaker(volume.uid)
+        }
+      })
     };
 
     client.on("user-published", handleUserPublished);
     client.on("user-unpublished", handleUserUnpublished);
     client.on("user-joined", handleUserJoined);
     client.on("user-left", handleUserLeft);
+    client.enableAudioVolumeIndicator();
+    client.on("volume-indicator", highlightingaSpeaker);
 
     return () => {
       client.off("user-published", handleUserPublished);
       client.off("user-unpublished", handleUserUnpublished);
       client.off("user-joined", handleUserJoined);
       client.off("user-left", handleUserLeft);
+      client.off("volume-indicator", highlightingaSpeaker);
     };
   }, [client]);
 
@@ -137,6 +171,10 @@ export default function useAgora(client) {
     muteVideo,
     muteAudio,
     muteVideoState,
-    muteAudioState
+    muteAudioState,
+    // userId,
+    username,
+    updateUsername,
+    currentSpeaker
   };
 }

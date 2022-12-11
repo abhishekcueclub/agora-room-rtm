@@ -24,13 +24,14 @@ export default function MediaPlayer(props) {
         audioTrack.stop();
       };
     }
+    // eslint-disable-next-line
   }, [audioTrack]);
 
   return (
     <div
       ref={container}
       className="video-player"
-      style={{ width: "640px", height: "400px" }}
+      style={{ width: "320px", height: "200px", borderRadius: 5, borderWidth: 3 }}
     >
       {/* {JSON.stringify(videoTrack.play)} */}
     </div>
