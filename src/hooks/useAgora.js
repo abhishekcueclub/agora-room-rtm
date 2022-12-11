@@ -7,8 +7,9 @@ import { useEffect, useState } from "react";
 export default function useAgora(client) {
   const appid = "2e5346b36d1f40b1bbc62472116d96de";
 
+  let USER_ID = Math.floor(Math.random() * 100000001)
   // const [userId, setUserId] = useState(null);
-  const [username, setUsername] = useState("abhishek");
+  const [username, setUsername] = useState("cue" + USER_ID);
   const [currentSpeaker, setCurrentSpeaker] = useState("");
 
   const [localVideoTrack, setLocalVideoTrack] = useState(null);
