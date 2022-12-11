@@ -95,7 +95,7 @@ export default function useAgoraChat(client, channelName) {
     }
     if (messageObj?.action === "clear_buzzer") {
       setBuzzersList([])
-    } else if (data.messageType === "TEXT") {
+    } else if (messageObj?.action === "text") {
       const dataMessage = {
         author: "them",
         type: 'text',
@@ -110,7 +110,7 @@ export default function useAgoraChat(client, channelName) {
 
   async function sendChannelMessage(text) {
 
-    const message = JSON.stringify({ text: text })
+    const message = JSON.stringify({ text: text, action: "text" })
 
     channel
       .sendMessage({ text: message })
