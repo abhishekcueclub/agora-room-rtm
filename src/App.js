@@ -74,16 +74,20 @@ export default function App() {
 
   return (
     <div>
-      {remoteUsers.map((user) => (
-        <div key={user.uid}>
+      <Draggable>
+        <div>
+          {remoteUsers.map((user) => (
+            <div key={user.uid}>
 
-          <label>{user.uid} </label> {" || "}
-          <label> {user._video_muted_ ? "Video disabled" : "Video enabled"}</label>
-          {" || "}
-          <label> {user._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
+              <label>{user.uid} </label> {" || "}
+              <label> {user._video_muted_ ? "Video disabled" : "Video enabled"}</label>
+              {" || "}
+              <label> {user._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
 
+            </div>
+          ))}
         </div>
-      ))}
+      </Draggable>
       <div className="call">
 
         {/* <Draggable> */}
