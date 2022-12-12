@@ -11,6 +11,10 @@ import MediaPlayer from "./components/MediaPlayer";
 import useAgora from "./hooks/useAgora";
 import useAgoraChat from "./hooks/useAgoraChat";
 
+// import Permissions from './Permissions'
+
+
+
 const client = AgoraRTC.createClient({ codec: "h264", mode: "rtc" });
 
 const chatClient = AgoraRTM.createInstance("2e5346b36d1f40b1bbc62472116d96de");
@@ -71,7 +75,7 @@ export default function App() {
   return (
     <div className="call">
 
-
+      {/* <Permissions /> */}
       <Draggable>
 
         <div className="local-player-wrapper" style={{
