@@ -87,59 +87,60 @@ export default function App() {
       <div className="call">
 
         {/* <Draggable> */}
+        {
+          joinState ? <div className="local-player-wrapper" style={{
+            position: 'absolute',
+          }} >
+            <MediaPlayer
+              isSelf={true}
+              videoTrack={localVideoTrack}
+              audioTrack={localAudioTrack}
+            ></MediaPlayer>
 
-        <div className="local-player-wrapper" style={{
-          position: 'absolute',
-        }} >
-          <MediaPlayer
-            isSelf={true}
-            videoTrack={localVideoTrack}
-            audioTrack={localAudioTrack}
-          ></MediaPlayer>
-          <label>{username}</label>
-          <br />
-          <br />
-          <label>Video Enabled: {!muteVideoState ? "true" : "false"}</label>
-          <br />
-
-          <label>Audio Enabled: {!muteAudioState ? "true" : "false"}</label>
-
-          <form className="call-form">
+            <label>{username} </label> {" || "}
+            <label> {muteVideoState ? "Video disabled" : "Video enabled"}</label>
+            {" || "}
+            <label> {muteAudioState ? "Audio disabled" : "Audio enabled"}</label>
 
 
-
-            <div className="button-group">
+            <form className="call-form">
 
 
 
               <div className="button-group">
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  disabled={!joinState}
-                  onClick={() => {
-                    muteAudio()
-                  }}
-                >
-                  {!muteAudioState ? "MuteAudio" : "UnmuteAudio"}
-                </button>
-                {"        "}
-                <button
-                  id="leave"
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  disabled={!joinState}
-                  onClick={() => {
-                    muteVideo();
-                  }}
-                >
-                  {!muteVideoState ? "MuteVideo" : "UnmuteVideo"}
 
-                </button>
+
+
+                <div className="button-group">
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    disabled={!joinState}
+                    onClick={() => {
+                      muteAudio()
+                    }}
+                  >
+                    {!muteAudioState ? "MuteAudio" : "UnmuteAudio"}
+                  </button>
+                  {"        "}
+                  <button
+                    id="leave"
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    disabled={!joinState}
+                    onClick={() => {
+                      muteVideo();
+                    }}
+                  >
+                    {!muteVideoState ? "MuteVideo" : "UnmuteVideo"}
+
+                  </button>
+                </div>
               </div>
-            </div>
-          </form>
-        </div>
+            </form>
+          </div> : null
+        }
+
 
 
         {/* </Draggable> */}
