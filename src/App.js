@@ -30,11 +30,14 @@ export default function App() {
   const { initRm, messages, sendChannelMessage, color,
     pressedBuzzer,
     clearPressedBuzzer,
-    buzzersList
+    buzzersList,
+    poked,
+    sendChannelMessageToPeer
   } = useAgoraChat(
     chatClient,
     channelName,
   );
+  const [poketoUser, setPokeToUser] = useState("");
 
   const {
     localAudioTrack,
@@ -67,6 +70,8 @@ export default function App() {
 
   return (
     <div className="call">
+
+
       <Draggable>
 
         <div className="local-player-wrapper" style={{
@@ -148,6 +153,24 @@ export default function App() {
 
 
           <div className="button-group">
+            <input
+              type="text"
+              value={poketoUser}
+              name="poketoUser"
+              onChange={(event) => {
+                setPokeToUser(event.target.value);
+              }}
+            />
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => {
+                sendChannelMessageToPeer(poketoUser);
+              }}
+            >
+              Poke User
+            </button>
+            <br /><br />
             <button
               type="button"
               className="btn btn-primary btn-sm"
@@ -170,6 +193,11 @@ export default function App() {
 
             </button>
 
+            <br />
+            <br />
+
+
+            <label>Who poked you {poked}</label>
             <br />
             <br />
             <label>Buzzer is pressed by</label>

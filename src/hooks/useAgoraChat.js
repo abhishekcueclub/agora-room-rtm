@@ -23,15 +23,9 @@ export default function useAgoraChat(client, channelName) {
   let color = useRef(randomColor({ luminosity: "dark" })).current;
   let channel = useRef(client.createChannel(channelName)).current;
 
-  // async function join(channel, token, uid) {
 
-  //   if (!client) return;
+  let [poked, setPoked] = useState(null);
 
-  //   await client.join(appid, channel, token);
-  //   await client.publish([microphoneTrack, cameraTrack]);
-
-  //   setJoinState(true);
-  // }
 
   const initRm = async (userId) => {
     await client.login({
@@ -54,11 +48,6 @@ export default function useAgoraChat(client, channelName) {
       color
     });
   };
-  // eslint-disable-next-line
-  // useEffect(() => {
-  //   initRm();
-  //   // eslint-disable-next-line
-  // }, [USER_ID]);
 
   useEffect(() => {
     channel.on("ChannelMessage", (data, uid) => {
@@ -73,9 +62,9 @@ export default function useAgoraChat(client, channelName) {
       console.log("==>AttributesUpdated", JSON.stringify(attr))
     });
 
-    channel.on("MessageFromPeer", async (message, memberId) => {
+    client.on("MessageFromPeer", async (message, memberId) => {
       console.log("agora----MessageFromPeer user===>", memberId)
-
+      setPoked(memberId)
       console.log(memberId + "==>MessageFromPeer", JSON.stringify(message))
     });
     // eslint-disable-next-line
@@ -92,9 +81,10 @@ export default function useAgoraChat(client, channelName) {
     const messageObj = JSON.parse(data?.text)
     if (messageObj?.action === "buzzer") {
       setBuzzerIsPressedBy(uid)
-    }
-    if (messageObj?.action === "clear_buzzer") {
+    } else if (messageObj?.action === "clear_buzzer") {
       setBuzzersList([])
+    } else if (messageObj?.action === "poked") {
+      setPoked(uid)
     } else if (messageObj?.action === "text") {
       const dataMessage = {
         author: "them",
@@ -142,6 +132,23 @@ export default function useAgoraChat(client, channelName) {
       });
   }
 
+
+  async function sendChannelMessageToPeer(peerId) {
+    console.log("sendChannelMessageToPeer to" + peerId)
+
+    const message = JSON.stringify({ action: "poked" })
+
+    client
+      .sendMessageToPeer({ text: message, offline: false }, peerId)
+      .then(async () => {
+        console.log("==>sendChannelMessageToPeer ", JSON.stringify(message))
+
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
   async function clearPressedBuzzer() {
 
     const message = JSON.stringify({ action: "clear_buzzer" })
@@ -179,6 +186,9 @@ export default function useAgoraChat(client, channelName) {
     initRm,
     pressedBuzzer,
     clearPressedBuzzer,
-    buzzersList
+    buzzersList,
+    poked,
+    setPoked,
+    sendChannelMessageToPeer
   };
 }
