@@ -5,11 +5,21 @@ import randomColor from "randomcolor";
 // import AgoraRTM from "agora-rtm-sdk";
 
 
+// import AgoraRTM from "agora-rtm-sdk";
+
+
+
 // let USER_ID = Math.floor(Math.random() * 100000001);
 
 export default function useAgoraChat(client, channelName) {
   // const [joinState, setJoinState] = useState(false);
 
+
+  // const {
+  //   muteVideo,
+  //   muteAudio,
+
+  // } = useAgora();
   let [messages, setMessages] = useState([]);
   // eslint-disable-next-line
   let [members, setMembers] = useState([]);
@@ -25,6 +35,11 @@ export default function useAgoraChat(client, channelName) {
 
 
   let [poked, setPoked] = useState(null);
+
+
+  let [disableAudio, setDisableAudio] = useState(false);
+  let [disableVideo, setDisableVideo] = useState(false);
+  let [spotlightedUser, setSpotlightedUser] = useState("");
 
 
   const initRm = async (userId) => {
@@ -63,8 +78,19 @@ export default function useAgoraChat(client, channelName) {
     });
 
     client.on("MessageFromPeer", async (message, memberId) => {
-      console.log("agora----MessageFromPeer user===>", memberId)
-      setPoked(memberId)
+      console.log("agora----MessageFromPeer user===>", message)
+      const messageObj = JSON.parse(message?.text)
+
+      if (messageObj?.action === "disableAudio") {
+        setDisableAudio(true)
+        console.log("agora----disableAudio user===>")
+      } else if (messageObj?.action === "disableVideo") {
+        setDisableVideo(true)
+        console.log("agora----disableVideo user===>")
+      } else if (messageObj?.action === "poked") {
+        setPoked(memberId)
+      }
+
       console.log(memberId + "==>MessageFromPeer", JSON.stringify(message))
     });
     // eslint-disable-next-line
@@ -81,6 +107,14 @@ export default function useAgoraChat(client, channelName) {
     const messageObj = JSON.parse(data?.text)
     if (messageObj?.action === "buzzer") {
       setBuzzerIsPressedBy(uid)
+    } else if (messageObj?.action === "disableAudio") {
+      setDisableAudio(true)
+      console.log("agora----disableAudio user===>", user)
+    } else if (messageObj?.action === "disableVideo") {
+      setDisableVideo(true)
+      console.log("agora----disableVideo user===>", user)
+    } else if (messageObj?.action === "spotlight") {
+      setSpotlightedUser(messageObj?.text)
     } else if (messageObj?.action === "clear_buzzer") {
       setBuzzersList([])
     } else if (messageObj?.action === "poked") {
@@ -174,6 +208,59 @@ export default function useAgoraChat(client, channelName) {
   }, [buzzerPressedBy]);
 
 
+
+  async function mutePeerAudio(peerId) {
+    console.log("mutePeerAudio to" + peerId)
+
+    const message = JSON.stringify({ action: "disableAudio" })
+
+    client
+      .sendMessageToPeer({ text: message, offline: false }, peerId)
+      .then(async () => {
+        console.log("==>mutePeerAudio ", JSON.stringify(message))
+
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+
+  async function mutePeerVideo(peerId) {
+    console.log("mutePeerVideo to" + peerId)
+
+    const message = JSON.stringify({ action: "disableVideo" })
+
+    client
+      .sendMessageToPeer({ text: message, offline: false }, peerId)
+      .then(async () => {
+        console.log("==>mutePeerVideo ", JSON.stringify(message))
+
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+
+  async function spotlightUserAction(userId) {
+    const message = JSON.stringify({ text: userId, action: "spotlight" })
+    channel
+      .sendMessage({ text: message })
+      .then(async () => {
+        console.log("==>send ", JSON.stringify(userId))
+        // const data = {
+        //   author: "me",
+        //   type: 'text',
+        //   data: { text: text },
+        // }
+        // setCurrentMessage(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
   useEffect(() => {
     if (currentMessage) setMessages([...messages, currentMessage]);
     // eslint-disable-next-line
@@ -189,6 +276,14 @@ export default function useAgoraChat(client, channelName) {
     buzzersList,
     poked,
     setPoked,
-    sendChannelMessageToPeer
+    sendChannelMessageToPeer,
+    disableAudio,
+    setDisableAudio,
+    disableVideo,
+    setDisableVideo,
+    spotlightedUser,
+    spotlightUserAction,
+    mutePeerVideo,
+    mutePeerAudio
   };
 }

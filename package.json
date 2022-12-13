@@ -5,9 +5,11 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
+    "agora-extension-virtual-background": "^1.1.2",
     "agora-rtc-sdk-ng": "4.15.1",
     "agora-rtm-sdk": "1.6.0-204",
     "bootstrap": "4.5.3",
+    "flatlist-react": "^1.5.7",
     "randomcolor": "0.6.2",
     "react": "17.0.0",
     "react-chat-window": "^1.2.1",

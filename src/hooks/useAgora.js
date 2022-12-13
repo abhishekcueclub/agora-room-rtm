@@ -4,7 +4,9 @@ import AgoraRTC, {
 } from "agora-rtc-sdk-ng";
 import { useEffect, useState } from "react";
 
-export default function useAgora(client) {
+// const client = AgoraRTC.createClient({ codec: "h264", mode: "rtc" });
+
+export default function useAgora(client, extension) {
   const appid = "2e5346b36d1f40b1bbc62472116d96de";
 
   let USER_ID = Math.floor(Math.random() * 100000001)
@@ -20,33 +22,122 @@ export default function useAgora(client) {
   const [remoteUsers, setRemoteUsers] = useState([]);
   const [muteVideoState, setMuteVideoState] = useState(true)
   const [muteAudioState, setMuteAudioState] = useState(true)
+  // eslint-disable-next-line
+  const [processor, setProcessor] = useState(null)
+  // eslint-disable-next-line
+  const [virtualBackgroundEnabled, setVirtualBackgroundEnabled] = useState(false)
 
 
-  async function muteVideo() {
-    if (localVideoTrack != null) {
-      console.log("muteVideo: ", localVideoTrack)
-      localVideoTrack.setEnabled(muteVideoState)
-      // muteVideoState
-      //   ? client.muteVideo()
-      //   : client.unmuteVideo()
+  // Initialization
+  async function getProcessorInstance() {
+    if (!processor && localVideoTrack) {
+      // Create a VirtualBackgroundProcessor instance
+      let processorConst = extension.createProcessor();
 
-      setMuteVideoState(!muteVideoState)
+      try {
+        // Initialize the extension and pass in the URL of the Wasm file
+        await processorConst.init();
+        // Inject the extension into the video processing pipeline in the SDK
+        localVideoTrack.pipe(processorConst).pipe(localVideoTrack.processorDestination);
+        setProcessor(processorConst)
+        console.log("init background process", processorConst);
+        return processorConst
+      } catch (e) {
+        console.log("background process Fail to load WASM resource!"); return null;
+      }
+
+    } else {
+      return processor
+    }
+  }
+
+  // // Set a solid color as the background
+  // // eslint-disable-next-line
+  async function setBackgroundColor() {
+
+    if (localVideoTrack && !virtualBackgroundEnabled) {
+
+      let processorConst = await getProcessorInstance();
+      try {
+        processorConst.setOptions({ type: 'color', color: '#000000' });
+        await processorConst.enable();
+
+      } finally {
+        setVirtualBackgroundEnabled(true)
+      }
+    } else {
+
+      let processorConst = await getProcessorInstance();
+      try {
+        await processorConst.disable();
+
+      } finally {
+        setVirtualBackgroundEnabled(false)
+      }
+
+    }
+  }
+
+  // Blur the user's actual background
+  async function setBackgroundBlurring() {
+    if (localVideoTrack && !virtualBackgroundEnabled) {
+
+      let processorConst = await getProcessorInstance();
+      try {
+        processorConst.setOptions({ type: 'blur', blurDegree: 2 });
+        await processorConst.enable();
+
+      } finally {
+        setVirtualBackgroundEnabled(true)
+      }
+    } else {
+
+      let processorConst = await getProcessorInstance();
+      try {
+        await processorConst.disable();
+
+      } finally {
+        setVirtualBackgroundEnabled(false)
+      }
 
     }
   }
 
 
-  async function muteAudio() {
+
+  async function muteVideo(forceMute = false, setDisableVideo) {
+    if (localVideoTrack != null) {
+      if (!forceMute) {
+        console.log("muteVideo: ", localVideoTrack)
+        localVideoTrack.setEnabled(muteVideoState)
+        setDisableVideo(false)
+
+        setMuteVideoState(!muteVideoState)
+      } else {
+        localVideoTrack.setEnabled(false)
+        setDisableVideo(false)
+        setMuteVideoState(true)
+
+
+      }
+
+
+    }
+  }
+
+
+  async function muteAudio(forceMute = false, setDisableAudio) {
     if (localAudioTrack != null) {
-
-      console.log("MuteAudioState: ", muteAudioState)
-      localAudioTrack.setEnabled(muteAudioState)
-
-      // muteAudioState
-      //   ? client.muteAudio()
-      //   : client.unmuteAudio()
-
-      setMuteAudioState(!muteAudioState)
+      if (!forceMute) {
+        console.log("MuteAudioState: ", muteAudioState)
+        localAudioTrack.setEnabled(muteAudioState)
+        setDisableAudio(false)
+        setMuteAudioState(!muteAudioState)
+      } else {
+        localAudioTrack.setEnabled(false)
+        setDisableAudio(false)
+        setMuteAudioState(true)
+      }
     }
   }
 
@@ -87,6 +178,7 @@ export default function useAgora(client) {
     setJoinState(true);
     console.log("Join --- 2")
     initRm(username_detail)
+    getProcessorInstance()
 
   }
 
@@ -160,7 +252,7 @@ export default function useAgora(client) {
       client.off("user-left", handleUserLeft);
       client.off("volume-indicator", highlightingaSpeaker);
     };
-  }, [client]);
+  }, []);
 
   return {
     localAudioTrack,
@@ -176,6 +268,8 @@ export default function useAgora(client) {
     // userId,
     username,
     updateUsername,
-    currentSpeaker
+    currentSpeaker,
+    setBackgroundBlurring,
+    setBackgroundColor
   };
 }

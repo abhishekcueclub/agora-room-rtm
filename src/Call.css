@@ -33,3 +33,11 @@ button {
   flex: 1;
   margin: 10px;
 }
+
+.wrapper {
+  display: grid;
+  grid-template-columns: 400px 400px 400px;
+  grid-gap: 10px;
+  background-color: #fff;
+  color: #444;
+}

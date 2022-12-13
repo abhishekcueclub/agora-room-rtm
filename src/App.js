@@ -1,13 +1,18 @@
 import "./Call.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import AgoraRTC from "agora-rtc-sdk-ng";
 import AgoraRTM from "agora-rtm-sdk";
+import Backdrop from "./SlideDrawer/Backdrop";
 import Draggable from 'react-draggable'; // The default
 import { Launcher } from "react-chat-window"
+import MainPage from "./SlideDrawer/MainPage";
 import MediaPlayer from "./components/MediaPlayer";
+import SlideDrawer from "./SlideDrawer/SlideDrawer";
+import SlideDrawerGame from "./SlideDrawer/SlideDrawerGame";
+import VirtualBackgroundExtension from "agora-extension-virtual-background";
 import useAgora from "./hooks/useAgora";
 import useAgoraChat from "./hooks/useAgoraChat";
 
@@ -15,19 +20,28 @@ import useAgoraChat from "./hooks/useAgoraChat";
 
 
 
-const client = AgoraRTC.createClient({ codec: "h264", mode: "rtc" });
 
-const chatClient = AgoraRTM.createInstance("2e5346b36d1f40b1bbc62472116d96de");
+export const client = AgoraRTC.createClient({ codec: "h264", mode: "rtc" });
+// Create a VirtualBackgroundExtension instance
+
+export const chatClient = AgoraRTM.createInstance("2e5346b36d1f40b1bbc62472116d96de");
+
+
+
+export const extension = new VirtualBackgroundExtension();
+// Register the extension
+AgoraRTC.registerExtensions([extension]);
 
 export default function App() {
-
   const [channel, setChannel] = useState("demo_channel");
+  // // eslint-disable-next-line
+  // const [appid, setAppid] = useState("2e5346b36d1f40b1bbc62472116d96de");
   // eslint-disable-next-line
-  const [appid, setAppid] = useState("2e5346b36d1f40b1bbc62472116d96de");
-  // eslint-disable-next-line
-  const [token, setToken] = useState("007eJxTYHA5mCP7S2z30/frW8qL1va+PbxC0PJ2HKfMm4vXf56exv9ZgcHcxDDVzNDSyDDJyMIkzSQlKSk5LTUp2dDSLCk5xdjYYpb0tOSGQEaGJ64JjIwMEAji8zCkpObmxydnJOblpeYwMAAAWgMlnQ==");
+  const [token, setToken] = useState("007eJxTYMi+FFS9dbHAbZv15faynhPvhPX73v/14dG+trObPcU27n+mwGBuYphqZmhpZJhkZGGSZpKSlJSclpqUbGhplpScYmxsIcU3M7khkJHh0NRMBkYoBPF5GFJSc/PjkzMS8/JScxgYAB7xJO0=");
 
   let channelName = channel;
+  // eslint-disable-next-line
+
 
   const [textArea, setTextArea] = useState();
   // eslint-disable-next-line
@@ -36,7 +50,15 @@ export default function App() {
     clearPressedBuzzer,
     buzzersList,
     poked,
-    sendChannelMessageToPeer
+    sendChannelMessageToPeer,
+    disableAudio,
+    setDisableAudio,
+    disableVideo,
+    setDisableVideo,
+    spotlightedUser,
+    spotlightUserAction,
+    mutePeerAudio,
+    mutePeerVideo
   } = useAgoraChat(
     chatClient,
     channelName,
@@ -57,8 +79,24 @@ export default function App() {
     updateUsername,
     username,
     currentSpeaker,
-  } = useAgora(client);
+    setBackgroundBlurring,
+    setBackgroundColor
+  } = useAgora(client, extension);
 
+
+  useEffect(() => {
+    if (disableAudio) {
+      muteAudio(true, setDisableAudio)
+      console.log("App.js Disable Audio")
+
+    }
+
+    if (disableVideo) {
+      muteVideo(true, setDisableVideo)
+      console.log("App.js Disable Video")
+    }
+
+  }, [disableAudio, disableVideo])
 
   // eslint-disable-next-line
   function submitMessage(event) {
@@ -72,9 +110,59 @@ export default function App() {
     }
   }
 
+  // eslint-disable-next-line
+  function virtualBackgroundExtension() {
+    console.log("virtualBackgroundExtension");
+    setBackgroundBlurring()
+  }
+
+  const drawerToggleClickHandler = () => {
+    setDrawerOpen(!drawerOpen)
+  }
+
+
+  const drawerGameToggleClickHandler = () => {
+    setDrawerGameOpen(!drawerGameOpen)
+  }
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [drawerGameOpen, setDrawerGameOpen] = useState(false)
   return (
     <div>
-      <Draggable>
+
+      {
+        joinState ? <div> <button
+          type="button"
+          className="btn btn-primary btn-sm"
+          onClick={() => {
+            drawerToggleClickHandler()
+          }}
+        >
+          Show Participants
+        </button>
+          {/* <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => {
+              drawerGameToggleClickHandler()
+            }}
+          >
+            Show Games
+          </button> */}
+        </div>
+          : null
+      }
+      < SlideDrawer
+        mutePeerAudio={mutePeerAudio}
+        mutePeerVideo={mutePeerVideo}
+        show={drawerOpen}
+        drawerToggleClickHandler={drawerToggleClickHandler} remoteUsers={remoteUsers} />
+      {/* < SlideDrawerGame show={drawerGameOpen} drawerToggleClickHandler={drawerGameToggleClickHandler} joinState={joinState} username={username} /> */}
+
+
+      {drawerOpen ? <Backdrop /> : null}
+      {/* {drawerOpen ? < MainPage toggle={drawerToggleClickHandler} /> : null} */}
+
+      {/* <Draggable>
         <div>
           {remoteUsers.map((user) => (
             <div key={user.uid}>
@@ -87,7 +175,7 @@ export default function App() {
             </div>
           ))}
         </div>
-      </Draggable>
+      </Draggable> */}
       <div className="call">
 
         {/* <Draggable> */}
@@ -119,9 +207,30 @@ export default function App() {
                   <button
                     type="button"
                     className="btn btn-primary btn-sm"
+                    onClick={() => {
+                      virtualBackgroundExtension()
+                    }}
+                  >
+                    Virtual Background
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={() => {
+                      setBackgroundColor()
+                    }}
+                  >
+                    Black Background
+                  </button>
+                  <br />
+                  <br />
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
                     disabled={!joinState}
                     onClick={() => {
-                      muteAudio()
+                      muteAudio(false, setDisableAudio)
+                      setDisableAudio(false)
                     }}
                   >
                     {!muteAudioState ? "MuteAudio" : "UnmuteAudio"}
@@ -133,7 +242,8 @@ export default function App() {
                     className="btn btn-primary btn-sm"
                     disabled={!joinState}
                     onClick={() => {
-                      muteVideo();
+                      muteVideo(false, setDisableVideo);
+                      // setDisableVideo(false)
                     }}
                   >
                     {!muteVideoState ? "MuteVideo" : "UnmuteVideo"}
@@ -336,25 +446,28 @@ export default function App() {
 
 
           <div className="remotePlayers">
-            {remoteUsers.map((user) => (
-              <div className="remote-player-wrapper" key={user.uid}>
-                {/* <p>Remote Player + {user.uid} </p> */}
-                {/* //   <p className="remote-player-text">{`remoteVideo(${user.uid})`}</p> */}
-                <MediaPlayer
-                  isSelf={false}
-                  videoTrack={user.videoTrack}
-                  audioTrack={user.audioTrack}
-                ></MediaPlayer>
-                <label>{user.uid} </label> {" || "}
-                <label> {user._video_muted_ ? "Video disabled" : "Video enabled"}</label>
-                {" || "}
-                <label> {user._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
+            <div class="wrapper">
+
+              {remoteUsers.map((user) => (
+                <div className="remote-player-wrapper" key={user.uid}>
+                  {/* <p>Remote Player + {user.uid} </p> */}
+                  {/* //   <p className="remote-player-text">{`remoteVideo(${user.uid})`}</p> */}
+                  <MediaPlayer
+                    isSelf={false}
+                    videoTrack={user.videoTrack}
+                    audioTrack={user.audioTrack}
+                  ></MediaPlayer>
+                  <label>{user.uid} </label> {" || "}
+                  <label> {user._video_muted_ ? "Video disabled" : "Video enabled"}</label>
+                  {" || "}
+                  <label> {user._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
 
 
-                {/* <label>{JSON.stringify(user)}</label> */}
+                  {/* <label>{JSON.stringify(user)}</label> */}
 
-              </div>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
