@@ -71,6 +71,20 @@ export default class SlideDrawer extends React.Component {
                                         </button>
                                     ) : null}
                                 </span>
+
+                                <span>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary btn-sm"
+                                        onClick={() => {
+                                            this.props.spotlightUserAction(user.uid)
+                                        }}
+                                    >
+                                        Spotlight User
+                                    </button>
+                                </span>
+
+                                {/* spotlightedUser={spotlightedUser} spotlightUserAction={spotlightUserAction} */}
                             </li>
                         </div>
                     ))}

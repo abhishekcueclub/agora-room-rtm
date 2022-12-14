@@ -244,21 +244,28 @@ export default function useAgoraChat(client, channelName) {
 
 
   async function spotlightUserAction(userId) {
-    const message = JSON.stringify({ text: userId, action: "spotlight" })
+
+    // if (userId == spotlightedUser) {
+    //   setSpotlightedUser(userId)
+    // } else {
+    const message = JSON.stringify({ text: userId == spotlightedUser ? "" : userId, action: "spotlight" })
     channel
       .sendMessage({ text: message })
       .then(async () => {
-        console.log("==>send ", JSON.stringify(userId))
+        console.log("==>spotlightUserAction ", JSON.stringify(userId))
         // const data = {
         //   author: "me",
         //   type: 'text',
         //   data: { text: text },
         // }
         // setCurrentMessage(data);
+        setSpotlightedUser(userId == spotlightedUser ? "" : userId)
       })
       .catch((err) => {
         console.log(err);
       });
+    // }
+
   }
 
   useEffect(() => {
@@ -284,6 +291,6 @@ export default function useAgoraChat(client, channelName) {
     spotlightedUser,
     spotlightUserAction,
     mutePeerVideo,
-    mutePeerAudio
+    mutePeerAudio,
   };
 }

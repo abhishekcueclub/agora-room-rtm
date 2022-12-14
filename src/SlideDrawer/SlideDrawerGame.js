@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 
 import {
     chatClient
-} from "../App"
+} from "../RoomApp"
 // import useAgora from "../hooks/useAgora";
 import useAgoraChat from "../hooks/useAgoraChat";
 

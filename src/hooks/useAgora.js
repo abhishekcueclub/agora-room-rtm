@@ -13,6 +13,10 @@ export default function useAgora(client, extension) {
   // const [userId, setUserId] = useState(null);
   const [username, setUsername] = useState("cue" + USER_ID);
   const [currentSpeaker, setCurrentSpeaker] = useState("");
+  const [remoteUsersMap, setRemoteUsersMap] = useState(null);
+  const [remoteUsersSet, setRemoteUsersSet] = useState([]);
+
+
 
   const [localVideoTrack, setLocalVideoTrack] = useState(null);
   const [localAudioTrack, setLocalAudioTrack] = useState(null);
@@ -228,15 +232,36 @@ export default function useAgora(client, extension) {
     };
 
     const highlightingaSpeaker = (user) => {
-      // console.log("agora----highlightingaSpeaker user===>", user)
-      user.forEach((volume) => {
-        // console.log(`UID ${volume.uid} Level ${volume.level}`);
+      console.log("agora----highlightingaSpeaker user===>", user)
+      console.log("agora----highlightingaSpeaker remoteUsers===>", remoteUsers)
 
-        if (volume.level > 5) {
-          setCurrentSpeaker(volume.uid)
-        }
-      })
+      // const remoteUidDataProcess = []
+      // for (var i = 0; i < user.length; i++) {
+      //   user.sort(function (a, b) { return b.level - a.level; });
+      // }
+
+      user.sort((a, b) => b.level - a.level)
+      // const remoteUidDataProcess = []
+      if (user?.length > 1) {
+        setCurrentSpeaker(user[0]?.uid)
+      }
+      // console.log("user---------->highlightingaSpeaker", user)
+      // user.forEach((volume) => {
+      //   console.log(`UID ${volume.uid} Level ${volume.level}`);
+
+      //   if (volume.level > 5) {
+      //     setCurrentSpeaker(volume.uid)
+      //   }
+      //   if (username != volume.uid) {
+      //     remoteUidDataProcess.push(volume.uid)
+      //   }
+
+      // })
+
+
     };
+
+
 
     client.on("user-published", handleUserPublished);
     client.on("user-unpublished", handleUserUnpublished);
@@ -253,6 +278,35 @@ export default function useAgora(client, extension) {
       client.off("volume-indicator", highlightingaSpeaker);
     };
   }, []);
+  useEffect(() => {
+    if (username != currentSpeaker) {
+      setRemoteUsersSet([...new Set([currentSpeaker, ...remoteUsersSet])])
+    }
+  }, [currentSpeaker])
+
+
+  useEffect(() => {
+    console.log("remoteUsersSet=====>userEffect", remoteUsersSet)
+
+  }, [remoteUsersSet])
+
+
+  useEffect(() => {
+    const remoteUserProcess = remoteUsersMap != null ? remoteUsersMap : new Map();
+    const remoteUidDataProcess = []
+
+    remoteUsers.map((userData) => {
+      // console.log("userData====>uid", userData?.uid)
+      // console.log("userData====>", userData?.uid)
+      remoteUserProcess.set(userData?.uid, userData);
+      remoteUidDataProcess.push(userData?.uid)
+    })
+    setRemoteUsersMap(remoteUserProcess)
+    console.log("remoteUsersSet=====>", remoteUidDataProcess)
+
+    setRemoteUsersSet([...new Set([...remoteUidDataProcess])])
+  }, [remoteUsers])
+
 
   return {
     localAudioTrack,
@@ -270,6 +324,8 @@ export default function useAgora(client, extension) {
     updateUsername,
     currentSpeaker,
     setBackgroundBlurring,
-    setBackgroundColor
+    setBackgroundColor,
+    remoteUsersMap,
+    remoteUsersSet
   };
 }
