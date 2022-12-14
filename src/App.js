@@ -126,9 +126,26 @@ export default function App() {
   }
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [drawerGameOpen, setDrawerGameOpen] = useState(false)
+
+  const captureUserMedia = callback => {
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+      .then(callback)
+      .catch(err => {
+        window.chrome.tabs.create({
+          url: 'request-mic.html'
+        });
+      });
+  };
+
   return (
     <div>
-
+      <button
+        type="button"
+        className="btn btn-primary btn-sm"
+        onClick={() => {
+          captureUserMedia()
+        }}
+      >Permission popup</button>
       {
         joinState ? <div> <button
           type="button"
