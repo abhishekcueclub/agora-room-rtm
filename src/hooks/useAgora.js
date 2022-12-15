@@ -378,12 +378,12 @@ export default function useAgora(client, extension) {
     };
     // eslint-disable-next-line
   }, []);
-  useEffect(() => {
-    if (username !== currentSpeaker) {
-      setRemoteUsersSet([...new Set([currentSpeaker, ...remoteUsersSet])])
-    }
-    // eslint-disable-next-line
-  }, [currentSpeaker])
+  // useEffect(() => {
+  //   if (username !== currentSpeaker) {
+  //     setRemoteUsersSet([...new Set([currentSpeaker, ...remoteUsersSet])])
+  //   }
+  //   // eslint-disable-next-line
+  // }, [currentSpeaker])
 
 
   useEffect(() => {
