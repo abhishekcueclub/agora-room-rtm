@@ -355,19 +355,22 @@ export default function RoomApp() {
               />
             </label>
 
-            <div className="button-group">
-              <button
-                id="join"
-                type="button"
-                className="btn btn-primary btn-sm"
-                disabled={joinState}
-                onClick={() => {
-                  join(channel, token, initRm, username);
-                }}
-              >
-                Join
-              </button>
-            </div>
+            {
+              username.length > 3 ? <div className="button-group">
+                <button
+                  id="join"
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  disabled={joinState}
+                  onClick={() => {
+                    join(channel, token, initRm, username);
+                  }}
+                >
+                  Join
+                </button>
+              </div> : null
+            }
+
           </form> :
             null
         }

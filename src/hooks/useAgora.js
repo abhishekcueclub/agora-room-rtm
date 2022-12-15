@@ -11,7 +11,7 @@ export default function useAgora(client, extension) {
 
   let USER_ID = Math.floor(Math.random() * 100000001)
   // const [userId, setUserId] = useState(null);
-  const [username, setUsername] = useState("cue" + USER_ID);
+  const [username, setUsername] = useState("");
   const [currentSpeaker, setCurrentSpeaker] = useState("");
   const [remoteUsersMap, setRemoteUsersMap] = useState(null);
   const [remoteUsersSet, setRemoteUsersSet] = useState([]);
