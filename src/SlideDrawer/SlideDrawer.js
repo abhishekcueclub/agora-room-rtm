@@ -77,12 +77,30 @@ export default class SlideDrawer extends React.Component {
                                         type="button"
                                         className="btn btn-primary btn-sm"
                                         onClick={() => {
-                                            this.props.spotlightUserAction(user.uid)
+                                            this.props.spotlightUserAction(user.uid, user.uid)
                                         }}
                                     >
                                         Spotlight User
                                     </button>
                                 </span>
+
+                                {/* <span>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary btn-sm"
+                                        onClick={() => {
+                                            if (this.props.pinUser !== user.uid) {
+                                                this.props.pinUserAction(user.uid)
+                                            } else {
+                                                this.props.pinUserAction("")
+                                            }
+                                        }}
+                                    >
+                                        Pin User
+                                    </button>
+                                </span> */}
+
+
 
                                 {/* spotlightedUser={spotlightedUser} spotlightUserAction={spotlightUserAction} */}
                             </li>

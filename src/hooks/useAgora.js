@@ -108,6 +108,79 @@ export default function useAgora(client, extension) {
   }
 
 
+  // Set an image as the background
+  async function setBackgroundImage() {
+
+    // var image = new Image();
+    // image.onload = function () {
+    // }
+    // image.crossOrigin = "anonymous";
+    // image.src = "https://miro.medium.com/max/1200/1*q4rL_nejz22KlgfYjfIOMg.png"
+
+    // // const imgElement = document.createElement('img');
+    // // imgElement.src = 'https://miro.medium.com/max/1200/1*q4rL_nejz22KlgfYjfIOMg.png';
+    // image.width = 1000
+    // image.height = 1000
+
+    // const canvas = document.createElement("canvas");
+    // const ctx = canvas.getContext("2d");
+
+    // const image = new Image();
+    // image.src = "https://images.pexels.com/photos/12043242/pexels-photo-12043242.jpeg";
+    // image.crossOrigin = "Anonymous";
+
+    // image.onload = () => {
+    //   ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    // };
+
+
+
+    // const canvas = document.getElementById("canvas");
+    // const ctx = canvas.getContext("2d");
+
+    // const image = new Image();
+    // image.src = "https://images.pexels.com/photos/12043242/pexels-photo-12043242.jpeg";
+    // image.addEventListener("load", () => {
+    //   ctx.drawImage(image, 0, 0, 233, 320);
+
+    //   const imageData = ctx.getImageData(10, 20, 80, 230);
+    //   ctx.putImageData(imageData, 260, 0);
+    //   ctx.putImageData(imageData, 380, 50);
+    //   ctx.putImageData(imageData, 500, 100);
+    // });
+
+
+    // if (localVideoTrack && !virtualBackgroundEnabled) {
+
+    //   let processorConst = await getProcessorInstance();
+    //   try {
+    //     processorConst.setOptions({
+    //       type: 'img', source: ctx
+    //     });
+    //     await processorConst.enable();
+    //   } catch (error) {
+    //     console.error("setBackgroundImage===>", error)
+    //   }
+    //   finally {
+    //     setVirtualBackgroundEnabled(true)
+    //   }
+    // } else {
+
+    //   let processorConst = await getProcessorInstance();
+    //   try {
+    //     await processorConst.disable();
+
+    //   } finally {
+    //     setVirtualBackgroundEnabled(false)
+    //   }
+
+    // }
+
+
+
+
+  }
+
 
   async function muteVideo(forceMute = false, setDisableVideo) {
     if (localVideoTrack != null) {
@@ -128,6 +201,32 @@ export default function useAgora(client, extension) {
 
     }
   }
+
+
+
+  async function forceAudio(forceMute = false) {
+    if (localAudioTrack != null) {
+      console.log("forceAudio: ", forceMute)
+      localAudioTrack.setEnabled(forceMute)
+      setMuteAudioState(forceMute)
+
+    }
+  }
+
+
+  async function forceVideo(forceMute) {
+    if (localVideoTrack != null && forceMute) {
+      console.log("forceVideo: ", forceMute)
+      localVideoTrack.setEnabled(!forceMute)
+      setTimeout(() => {
+        localVideoTrack.setEnabled(forceMute)
+        // localVideoTrack.setEnabled(!forceMute)
+        setMuteVideoState(!forceMute)
+      }, 200)
+
+    }
+  }
+
 
 
   async function muteAudio(forceMute = false, setDisableAudio) {
@@ -277,11 +376,13 @@ export default function useAgora(client, extension) {
       client.off("user-left", handleUserLeft);
       client.off("volume-indicator", highlightingaSpeaker);
     };
+    // eslint-disable-next-line
   }, []);
   useEffect(() => {
-    if (username != currentSpeaker) {
+    if (username !== currentSpeaker) {
       setRemoteUsersSet([...new Set([currentSpeaker, ...remoteUsersSet])])
     }
+    // eslint-disable-next-line
   }, [currentSpeaker])
 
 
@@ -294,7 +395,7 @@ export default function useAgora(client, extension) {
   useEffect(() => {
     const remoteUserProcess = remoteUsersMap != null ? remoteUsersMap : new Map();
     const remoteUidDataProcess = []
-
+    // eslint-disable-next-line
     remoteUsers.map((userData) => {
       // console.log("userData====>uid", userData?.uid)
       // console.log("userData====>", userData?.uid)
@@ -305,6 +406,7 @@ export default function useAgora(client, extension) {
     console.log("remoteUsersSet=====>", remoteUidDataProcess)
 
     setRemoteUsersSet([...new Set([...remoteUidDataProcess])])
+    // eslint-disable-next-line
   }, [remoteUsers])
 
 
@@ -326,6 +428,9 @@ export default function useAgora(client, extension) {
     setBackgroundBlurring,
     setBackgroundColor,
     remoteUsersMap,
-    remoteUsersSet
+    remoteUsersSet,
+    setBackgroundImage,
+    forceAudio,
+    forceVideo
   };
 }

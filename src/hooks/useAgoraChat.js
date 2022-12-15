@@ -35,11 +35,13 @@ export default function useAgoraChat(client, channelName) {
 
 
   let [poked, setPoked] = useState(null);
+  let [forceEnableVideo, setForceEnableVideo] = useState(false);
 
 
   let [disableAudio, setDisableAudio] = useState(false);
   let [disableVideo, setDisableVideo] = useState(false);
   let [spotlightedUser, setSpotlightedUser] = useState("");
+  let [pinUser, setPinUser] = useState("");
 
 
   const initRm = async (userId) => {
@@ -87,6 +89,9 @@ export default function useAgoraChat(client, channelName) {
       } else if (messageObj?.action === "disableVideo") {
         setDisableVideo(true)
         console.log("agora----disableVideo user===>")
+      } else if (messageObj?.action === "removeSpotlight") {
+        setForceEnableVideo(true)
+        console.log("agora----disableVideo user===>")
       } else if (messageObj?.action === "poked") {
         setPoked(memberId)
       }
@@ -115,6 +120,7 @@ export default function useAgoraChat(client, channelName) {
       console.log("agora----disableVideo user===>", user)
     } else if (messageObj?.action === "spotlight") {
       setSpotlightedUser(messageObj?.text)
+      setForceEnableVideo(false)
     } else if (messageObj?.action === "clear_buzzer") {
       setBuzzersList([])
     } else if (messageObj?.action === "poked") {
@@ -243,29 +249,47 @@ export default function useAgoraChat(client, channelName) {
   }
 
 
-  async function spotlightUserAction(userId) {
+  async function spotlightUserAction(userId, username) {
 
     // if (userId == spotlightedUser) {
     //   setSpotlightedUser(userId)
     // } else {
-    const message = JSON.stringify({ text: userId == spotlightedUser ? "" : userId, action: "spotlight" })
+    const message = JSON.stringify({ text: userId === spotlightedUser ? "" : userId, action: "spotlight" })
     channel
       .sendMessage({ text: message })
       .then(async () => {
         console.log("==>spotlightUserAction ", JSON.stringify(userId))
-        // const data = {
-        //   author: "me",
-        //   type: 'text',
-        //   data: { text: text },
-        // }
-        // setCurrentMessage(data);
-        setSpotlightedUser(userId == spotlightedUser ? "" : userId)
+        if (userId === spotlightedUser) {
+          removePeerSpotlight(spotlightedUser)
+        }
+        setSpotlightedUser(userId === spotlightedUser ? "" : userId)
+
+
       })
       .catch((err) => {
         console.log(err);
       });
     // }
 
+  }
+  async function removePeerSpotlight(peerId) {
+    console.log("removePeerSpotlight to" + peerId)
+    const message = JSON.stringify({ action: "removeSpotlight" })
+    client
+      .sendMessageToPeer({ text: message, offline: false }, peerId)
+      .then(async () => {
+        console.log("==>removePeerSpotlight ", JSON.stringify(message))
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  function pinUserAction(userId) {
+    if (userId.length === 0) {
+      removePeerSpotlight(userId)
+    }
+    setPinUser(userId)
   }
 
   useEffect(() => {
@@ -292,5 +316,8 @@ export default function useAgoraChat(client, channelName) {
     spotlightUserAction,
     mutePeerVideo,
     mutePeerAudio,
+    pinUser,
+    pinUserAction,
+    forceEnableVideo,
   };
 }

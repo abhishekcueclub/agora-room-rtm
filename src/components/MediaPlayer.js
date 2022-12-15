@@ -5,6 +5,7 @@ export default function MediaPlayer(props) {
 
   let videoTrack = props.videoTrack;
   let audioTrack = props.audioTrack;
+  let username = props.username;
 
   useEffect(() => {
     if (!container.current) return;
@@ -33,6 +34,22 @@ export default function MediaPlayer(props) {
       className="video-player"
       style={{ width: "320px", height: "200px", borderRadius: 5, borderWidth: 3 }}
     >
+      <div
+        style={{
+          backgroundColor: '#333',
+          borderRadius: 4,
+          color: '#eee',
+          minHeight: 200,
+          padding: 12,
+          width: "320px",
+          height: "200px",
+          position: 'absolute',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        {username}
+      </div>
       {/* {JSON.stringify(videoTrack.play)} */}
     </div>
   );

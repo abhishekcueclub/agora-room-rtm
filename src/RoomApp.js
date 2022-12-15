@@ -6,12 +6,12 @@ import React, { useEffect, useState } from "react";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import AgoraRTM from "agora-rtm-sdk";
 import Backdrop from "./SlideDrawer/Backdrop";
-import Draggable from 'react-draggable'; // The default
+// import Draggable from 'react-draggable'; // The default
 import { Launcher } from "react-chat-window"
-import MainPage from "./SlideDrawer/MainPage";
+// import MainPage from "./SlideDrawer/MainPage";
 import MediaPlayer from "./components/MediaPlayer";
 import SlideDrawer from "./SlideDrawer/SlideDrawer";
-import SlideDrawerGame from "./SlideDrawer/SlideDrawerGame";
+// import SlideDrawerGame from "./SlideDrawer/SlideDrawerGame";
 import VirtualBackgroundExtension from "agora-extension-virtual-background";
 import useAgora from "./hooks/useAgora";
 import useAgoraChat from "./hooks/useAgoraChat";
@@ -37,13 +37,12 @@ export default function RoomApp() {
   // // eslint-disable-next-line
   // const [appid, setAppid] = useState("2e5346b36d1f40b1bbc62472116d96de");
   // eslint-disable-next-line
-  const [token, setToken] = useState("007eJxTYMi+FFS9dbHAbZv15faynhPvhPX73v/14dG+trObPcU27n+mwGBuYphqZmhpZJhkZGGSZpKSlJSclpqUbGhplpScYmxsIcU3M7khkJHh0NRMBkYoBPF5GFJSc/PjkzMS8/JScxgYAB7xJO0=");
+  const [token, setToken] = useState("007eJxTYMhrKIyJ2VaXxFKu4GFr6hCXX9uZM7/o7dabOT5alTpbexUYzE0MU80MLY0Mk4wsTNJMUpKSktNSk5INLc2SklOMjS3Wd85KbghkZDiebsrKyACBID4PQ0pqbn58ckZiXl5qDgMDAMS5IWU=");
 
   let channelName = channel;
   // eslint-disable-next-line
 
 
-  const [textArea, setTextArea] = useState();
   // eslint-disable-next-line
   const { initRm, messages, sendChannelMessage, color,
     pressedBuzzer,
@@ -58,7 +57,10 @@ export default function RoomApp() {
     spotlightedUser,
     spotlightUserAction,
     mutePeerAudio,
-    mutePeerVideo
+    mutePeerVideo,
+    pinUser,
+    pinUserAction,
+    forceEnableVideo
   } = useAgoraChat(
     chatClient,
     channelName,
@@ -82,8 +84,18 @@ export default function RoomApp() {
     setBackgroundBlurring,
     setBackgroundColor,
     remoteUsersMap,
-    remoteUsersSet
+    remoteUsersSet,
+    forceVideo
   } = useAgora(client, extension);
+
+  useEffect(() => {
+
+    if (forceEnableVideo && !muteVideoState) {
+      forceVideo(true)
+      console.log("App.js Disable Audio")
+    }
+    // eslint-disable-next-line
+  }, [forceEnableVideo])
 
 
   useEffect(() => {
@@ -97,7 +109,7 @@ export default function RoomApp() {
       muteVideo(true, setDisableVideo)
       console.log("App.js Disable Video")
     }
-
+    // eslint-disable-next-line
   }, [disableAudio, disableVideo])
 
   // // eslint-disable-next-line
@@ -123,6 +135,7 @@ export default function RoomApp() {
   }
 
 
+  // eslint-disable-next-line
   const drawerGameToggleClickHandler = () => {
     setDrawerGameOpen(!drawerGameOpen)
   }
@@ -140,6 +153,7 @@ export default function RoomApp() {
   // };
 
   const [spotlightedUserDetails, setSpotlightedUserDetails] = useState(null)
+  const [pinUserDetails, setPinUserDetails] = useState(null)
 
   useEffect(() => {
     if (spotlightedUser?.length > 0) {
@@ -149,36 +163,66 @@ export default function RoomApp() {
       setSpotlightedUserDetails(null)
     }
 
-
+    // eslint-disable-next-line
   }, [spotlightedUser])
+
+  useEffect(() => {
+    console.log("")
+    if (pinUser?.length > 0) {
+      const user = remoteUsersMap.get(pinUser)
+      setPinUserDetails(user)
+    } else {
+      setPinUserDetails(null)
+    }
+
+    // eslint-disable-next-line
+  }, [pinUser])
 
   return (
     <div>
-
-      <h3>SpotlightedUser Speaking: {spotlightedUser}</h3>
-      <br />
-      <h3>===============================================</h3>
-      <br />
-
       {
-        spotlightedUserDetails !== null ? <> <div className="remote-player-wrapper" key={spotlightedUser} >
-          <MediaPlayer
-            isSelf={false}
-            videoTrack={spotlightedUserDetails?.videoTrack}
-            audioTrack={spotlightedUserDetails?.audioTrack}
-          ></MediaPlayer>
-          <label>{spotlightedUserDetails?.uid} </label> {" || "}
-          <label> {spotlightedUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
-          {" || "}
-          <label> {spotlightedUserDetails?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
-        </div> </> : null
+        joinState ? <div> <h3>SpotlightedUser Speaking: {spotlightedUser}</h3>
+          <br />
+          <h3>===============================================</h3>
+          <br />
+
+          {
+            spotlightedUserDetails !== null ? <> <div className="remote-player-wrapper" key={spotlightedUser} >
+              <MediaPlayer
+                isSelf={false}
+                videoTrack={spotlightedUserDetails?.videoTrack}
+                audioTrack={spotlightedUserDetails?.audioTrack}
+                username={spotlightedUserDetails?.uid}
+              ></MediaPlayer>
+              <label>{spotlightedUserDetails?.uid} </label> {" || "}
+              <label> {spotlightedUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
+              {" || "}
+              <label> {spotlightedUserDetails?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
+            </div> </> : pinUserDetails !== null ? <> <div className="remote-player-wrapper" key={pinUser} >
+              <MediaPlayer
+                isSelf={false}
+                videoTrack={pinUserDetails?.videoTrack}
+                audioTrack={pinUserDetails?.audioTrack}
+                username={pinUserDetails?.uid}
+              ></MediaPlayer>
+              <label>{pinUserDetails?.uid} </label> {" || "}
+              <label> {pinUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
+              {" || "}
+              <label> {pinUserDetails?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
+            </div> </> : null
+          }
+
+
+
+
+          <br />
+          <h3>===============================================</h3>
+          <br />
+
+          <h3>Currently Speaking: {currentSpeaker}</h3>
+        </div> : null
       }
 
-      <br />
-      <h3>===============================================</h3>
-      <br />
-
-      <h3>Currently Speaking: {currentSpeaker}</h3>
 
 
       {
@@ -236,6 +280,9 @@ export default function RoomApp() {
         remoteUsers={remoteUsers}
         spotlightedUser={spotlightedUser}
         spotlightUserAction={spotlightUserAction}
+
+        pinUser={pinUser}
+        pinUserAction={pinUserAction}
       />
       {/* < SlideDrawerGame show={drawerGameOpen} drawerToggleClickHandler={drawerGameToggleClickHandler} joinState={joinState} username={username} /> */}
       {drawerOpen ? <Backdrop /> : null}
@@ -342,6 +389,7 @@ export default function RoomApp() {
                       isSelf={true}
                       videoTrack={localVideoTrack}
                       audioTrack={localAudioTrack}
+                      username={username}
                     />
                     <label>{username} </label> {" || "}
                     <label> {muteVideoState ? "Video disabled" : "Video enabled"}</label>
@@ -367,6 +415,18 @@ export default function RoomApp() {
                     >
                       Black Background
                     </button>
+                    {/* <Imagebackground /> */}
+                    {/* <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      onClick={() => {
+                        setBackgroundImage()
+                      }}
+                    >
+                      Image Background
+                    </button> */}
+
+
                     <br />
                     <br />
                     <button
@@ -398,7 +458,7 @@ export default function RoomApp() {
               remoteUsersSet */}
               {remoteUsersSet.map((userId) => {
                 const user = remoteUsersMap.get(userId)
-                console.log("remoteUsersSet abhishek", remoteUsersSet)
+                console.log("remoteUsersSet abhishek", user)
                 // return (<div><p>{userId + "--" + JSON.stringify(user)}</p></div>)
                 return (<div>{
                   user === null || spotlightedUser === userId ? null : <div className="remote-player-wrapper" key={userId} >
@@ -406,6 +466,7 @@ export default function RoomApp() {
                       isSelf={false}
                       videoTrack={user?.videoTrack}
                       audioTrack={user?.audioTrack}
+                      username={user?.uid}
                     ></MediaPlayer>
                     <label>{user?.uid} </label> {" || "}
                     <label> {user?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
@@ -414,7 +475,6 @@ export default function RoomApp() {
                   </div>
                 }</div>)
               }
-
               )}
             </div>
           </div>
@@ -449,6 +509,8 @@ export default function RoomApp() {
             </div>))}
         </div> : null
       }
+      {/* <canvas id="canvas" width="700" height="400"></canvas> */}
+
     </div >
   );
 }
