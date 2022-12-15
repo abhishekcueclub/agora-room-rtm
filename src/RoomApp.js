@@ -475,6 +475,9 @@ export default function RoomApp() {
                     <label> {user?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
                     {" || "}
                     <label> {user?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
+                    <label> User int Id {user?._uintid}</label>
+
+
                   </div>
                 }</div>)
               }
