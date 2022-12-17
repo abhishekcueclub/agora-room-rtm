@@ -21,7 +21,7 @@ import useAgoraChat from "./hooks/useAgoraChat";
 
 
 
-export const client = AgoraRTC.createClient({ codec: "h264", mode: "rtc" });
+export const client = AgoraRTC.createClient({ codec: "h264", mode: "live" });
 // Create a VirtualBackgroundExtension instance
 
 export const chatClient = AgoraRTM.createInstance("2e5346b36d1f40b1bbc62472116d96de");
@@ -37,7 +37,7 @@ export default function RoomApp() {
   // // eslint-disable-next-line
   // const [appid, setAppid] = useState("2e5346b36d1f40b1bbc62472116d96de");
   // eslint-disable-next-line
-  const [token, setToken] = useState("007eJxTYMhrKIyJ2VaXxFKu4GFr6hCXX9uZM7/o7dabOT5alTpbexUYzE0MU80MLY0Mk4wsTNJMUpKSktNSk5INLc2SklOMjS3Wd85KbghkZDiebsrKyACBID4PQ0pqbn58ckZiXl5qDgMDAMS5IWU=");
+  const [token, setToken] = useState("007eJxTYPCNtm5i/sPmxvNRI3Ole0v/xodHem5Pm80RPXliv5H9s48KDOYmhqlmhpZGhklGFiZpJilJSclpqUnJhpZmSckpxsYWa7jnJTcEMjJY6a9jYWSAQBCfhyElNTc/PjkjMS8vNYeBAQA1zCJS");
 
   let channelName = channel;
   // eslint-disable-next-line
@@ -80,6 +80,7 @@ export default function RoomApp() {
     muteAudioState,
     updateUsername,
     username,
+    isUserAudience,
     currentSpeaker,
     setBackgroundBlurring,
     setBackgroundColor,
@@ -432,7 +433,9 @@ export default function RoomApp() {
 
                     <br />
                     <br />
-                    <button
+                    {!isUserAudience && (
+                      <>
+                         <button
                       type="button"
                       className="btn btn-primary btn-sm"
                       disabled={!joinState}
@@ -455,6 +458,9 @@ export default function RoomApp() {
                       {!muteVideoState ? "MuteVideo" : "UnmuteVideo"}
 
                     </button>
+                      </>
+                    )}
+                   
                   </div> : null
               }
               {/* remoteUsersMap,

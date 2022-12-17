@@ -30,6 +30,7 @@ export default function useAgora(client, extension) {
   const [processor, setProcessor] = useState(null)
   // eslint-disable-next-line
   const [virtualBackgroundEnabled, setVirtualBackgroundEnabled] = useState(false)
+  const [isUserAudience,setIsUserAudience] = useState(true);
 
 
   // Initialization
@@ -246,6 +247,8 @@ export default function useAgora(client, extension) {
 
 
   async function updateUsername(name) {
+    console.log('nnnnnnnnnnnn',name, isUserAudience)
+    setIsUserAudience(name && name.startsWith('cue') ? false : true)
     setUsername(name)
   }
   async function createLocalTracks() {
@@ -273,11 +276,16 @@ export default function useAgora(client, extension) {
 
     console.log("Join --- 1")
     const [microphoneTrack, cameraTrack] = await createLocalTracks();
-
+    console.log('username_detail',username_detail);
+    
     await client.join(appid, channel, token, username_detail);
-    await client.publish([microphoneTrack, cameraTrack]);
-    microphoneTrack.setEnabled(false)
-    cameraTrack.setEnabled(false)
+    await client.setClientRole(isUserAudience ? 'audience':'host');
+
+    if(!isUserAudience){
+      await client.publish([microphoneTrack, cameraTrack]);
+      microphoneTrack.setEnabled(false)
+      cameraTrack.setEnabled(false)
+    }
     setJoinState(true);
     console.log("Join --- 2")
     initRm(username_detail)
@@ -417,6 +425,7 @@ export default function useAgora(client, extension) {
     leave,
     join,
     remoteUsers,
+    isUserAudience,
     muteVideo,
     muteAudio,
     muteVideoState,
