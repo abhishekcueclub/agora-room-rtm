@@ -85,7 +85,9 @@ export default function RoomApp() {
     setBackgroundColor,
     remoteUsersMap,
     remoteUsersSet,
-    forceVideo
+    forceVideo,
+    screenShareState,
+    screenShare
   } = useAgora(client, extension);
 
   useEffect(() => {
@@ -455,6 +457,20 @@ export default function RoomApp() {
                       {!muteVideoState ? "MuteVideo" : "UnmuteVideo"}
 
                     </button>
+
+                    <button
+                      id="screenshare"
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      disabled={!joinState}
+                      onClick={() => {
+                        screenShare();
+                      }}
+                    >
+                      {!screenShareState ? "Screen Share" : "Stop Screen Share"}
+
+                    </button>
+
                   </div> : null
               }
               {/* remoteUsersMap,

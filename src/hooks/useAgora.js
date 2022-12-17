@@ -1,15 +1,17 @@
 import AgoraRTC, {
   CameraVideoTrackInitConfig,
-  MicrophoneAudioTrackInitConfig
+  MicrophoneAudioTrackInitConfig,
+  ScreenVideoTrackInitConfig
 } from "agora-rtc-sdk-ng";
 import { useEffect, useState } from "react";
 
 // const client = AgoraRTC.createClient({ codec: "h264", mode: "rtc" });
+var screenVideoProfile = '480p_2'; // 640 × 480 @ 30fps
 
 export default function useAgora(client, extension) {
   const appid = "2e5346b36d1f40b1bbc62472116d96de";
 
-  let USER_ID = Math.floor(Math.random() * 100000001)
+  // let USER_ID = Math.floor(Math.random() * 100000001)
   // const [userId, setUserId] = useState(null);
   const [username, setUsername] = useState("");
   const [currentSpeaker, setCurrentSpeaker] = useState("");
@@ -20,11 +22,13 @@ export default function useAgora(client, extension) {
 
   const [localVideoTrack, setLocalVideoTrack] = useState(null);
   const [localAudioTrack, setLocalAudioTrack] = useState(null);
+  const [screenTrack, setScreenTrack] = useState(null);
 
   const [joinState, setJoinState] = useState(false);
 
   const [remoteUsers, setRemoteUsers] = useState([]);
   const [muteVideoState, setMuteVideoState] = useState(true)
+  const [screenShareState, setScreenShareState] = useState(false)
   const [muteAudioState, setMuteAudioState] = useState(true)
   // eslint-disable-next-line
   const [processor, setProcessor] = useState(null)
@@ -264,7 +268,6 @@ export default function useAgora(client, extension) {
 
     setLocalAudioTrack(microphoneTrack);
     setLocalVideoTrack(cameraTrack);
-
     return [microphoneTrack, cameraTrack];
   }
 
@@ -410,6 +413,58 @@ export default function useAgora(client, extension) {
   }, [remoteUsers])
 
 
+  async function screenShare() {
+
+    if (!screenShareState) {
+      // Create a screen track for screen sharing.
+      const screenTrackObject = await AgoraRTC.createScreenVideoTrack(ScreenVideoTrackInitConfig);
+
+      setScreenTrack(screenTrackObject)
+
+      // Stop playing the local video track.
+      localVideoTrack.stop();
+      // Unpublish the local video track.
+      // await agoraEngine.unpublish(localVideoTrack);
+      // Publish the screen track.
+      await client.publish(screenTrack);
+      screenTrackObject.setEnabled(true)
+
+      // Play the screen track on local container.
+      // screenTrackObject.play(localPlayerContainer);
+      // Update the button text.
+      // document.getElementById(`inItScreen`).innerHTML = "Stop Sharing";
+      // Update the screen sharing state.
+      setScreenShareState(true)
+    } else {
+      // Stop playing the screen track.
+      screenTrack.stop();
+      // Unpublish the screen track.
+      await client.unpublish(screenTrack);
+      // Publish the local video track.
+      await client.publish(localVideoTrack);
+      // Play the local video on the local container.
+      // localVideoTrack.play(localPlayerContainer);
+      // Update the button text.
+      // document.getElementById(`inItScreen`).innerHTML = "Share Screen";
+      // Update the screen sharing state.
+      setScreenShareState(false)
+    }
+    // if (localVideoTrack != null) {
+
+
+
+    //   console.log("forceVideo: ", forceMute)
+    //   // localVideoTrack.setEnabled(!forceMute)
+    //   setTimeout(() => {
+    //     localVideoTrack.setEnabled(forceMute)
+    //     // localVideoTrack.setEnabled(!forceMute)
+    //     setScreenShareState(!screenShareState)
+    //   }, 200)
+
+    // }
+  }
+
+
   return {
     localAudioTrack,
     localVideoTrack,
@@ -431,6 +486,8 @@ export default function useAgora(client, extension) {
     remoteUsersSet,
     setBackgroundImage,
     forceAudio,
-    forceVideo
+    forceVideo,
+    screenShareState,
+    screenShare
   };
 }
