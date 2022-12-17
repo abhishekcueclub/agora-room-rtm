@@ -247,7 +247,6 @@ export default function useAgora(client, extension) {
 
 
   async function updateUsername(name) {
-    console.log('nnnnnnnnnnnn',name, isUserAudience)
     setIsUserAudience(name && name.startsWith('cue') ? false : true)
     setUsername(name)
   }
@@ -276,11 +275,9 @@ export default function useAgora(client, extension) {
 
     console.log("Join --- 1")
     const [microphoneTrack, cameraTrack] = await createLocalTracks();
-    console.log('username_detail',username_detail);
     
     await client.join(appid, channel, token, username_detail);
     await client.setClientRole(isUserAudience ? 'audience':'host');
-
     if(!isUserAudience){
       await client.publish([microphoneTrack, cameraTrack]);
       microphoneTrack.setEnabled(false)
