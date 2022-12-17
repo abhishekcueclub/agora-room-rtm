@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 export default function useAgora(client, extension) {
   const appid = "2e5346b36d1f40b1bbc62472116d96de";
-
+  // eslint-disable-next-line
   let USER_ID = Math.floor(Math.random() * 100000001)
   // const [userId, setUserId] = useState(null);
   const [username, setUsername] = useState("");
