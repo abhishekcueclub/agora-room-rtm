@@ -8,7 +8,7 @@ import VirtualBackgroundExtension from "agora-extension-virtual-background";
 
 export const AgoraRTCContext = React.createContext(null);
 export const appid = "2e5346b36d1f40b1bbc62472116d96de";
-export const client = AgoraRTC.createClient({ codec: "h264", mode: "rtc" });
+export const client = AgoraRTC.createClient({ codec: "h264", mode: "live" });
 
 
 // Register the extension
@@ -21,6 +21,8 @@ const AgoraRTCProvider = ({ children }) => {
     // let USER_ID = Math.floor(Math.random() * 100000001)
     // const [userId, setUserId] = useState(null);
     const [username, setUsername] = useState("");
+    const [isUserAudience,setIsUserAudience] = useState(true);
+
     const [currentSpeaker, setCurrentSpeaker] = useState("");
     const [remoteUsersMap, setRemoteUsersMap] = useState(null);
     const [remoteUsersSet, setRemoteUsersSet] = useState([]);
@@ -255,6 +257,7 @@ const AgoraRTCProvider = ({ children }) => {
 
 
     async function updateUsername(name) {
+        setIsUserAudience(name && name.startsWith('cue') ? false : true)
         setUsername(name)
     }
     async function createLocalTracks() {
@@ -284,9 +287,12 @@ const AgoraRTCProvider = ({ children }) => {
         const [microphoneTrack, cameraTrack] = await createLocalTracks();
 
         await client.join(appid, channel, token, username_detail);
-        await client.publish([microphoneTrack, cameraTrack]);
-        microphoneTrack.setEnabled(false)
-        cameraTrack.setEnabled(false)
+        await client.setClientRole(isUserAudience ? 'audience':'host');
+        if(!isUserAudience){
+            await client.publish([microphoneTrack, cameraTrack]);
+            microphoneTrack.setEnabled(false)
+            cameraTrack.setEnabled(false)
+        }
         setJoinState(true);
         console.log("Join --- 2")
         initRm(username_detail)
@@ -436,6 +442,8 @@ const AgoraRTCProvider = ({ children }) => {
                 username,
                 updateUsername,
                 currentSpeaker,
+                isUserAudience,
+                setIsUserAudience,
                 setBackgroundBlurring,
                 setBackgroundColor,
                 remoteUsersMap,

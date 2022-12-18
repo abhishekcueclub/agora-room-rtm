@@ -23,7 +23,7 @@ import { useAgoraRTM } from "./hooks/AgoraRTMProvider";
 
 
 
-export const client = AgoraRTC.createClient({ codec: "h264", mode: "live" });
+//export const client = AgoraRTC.createClient({ codec: "h264", mode: "live" });
 // Create a VirtualBackgroundExtension instance
 
 // export const chatClient = AgoraRTM.createInstance("2e5346b36d1f40b1bbc62472116d96de");
@@ -85,6 +85,7 @@ export default function RoomApp() {
     updateUsername,
     username,
     isUserAudience,
+    setIsUserAudience,
     currentSpeaker,
     setBackgroundBlurring,
     setBackgroundColor,
