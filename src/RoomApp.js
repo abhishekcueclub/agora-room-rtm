@@ -3,8 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 import React, { useEffect, useState } from "react";
 
-import AgoraRTC from "agora-rtc-sdk-ng";
-import AgoraRTM from "agora-rtm-sdk";
+// import AgoraRTC from "agora-rtc-sdk-ng";
+// import AgoraRTM from "agora-rtm-sdk";
 import Backdrop from "./SlideDrawer/Backdrop";
 // import Draggable from 'react-draggable'; // The default
 import { Launcher } from "react-chat-window"
@@ -12,9 +12,11 @@ import { Launcher } from "react-chat-window"
 import MediaPlayer from "./components/MediaPlayer";
 import SlideDrawer from "./SlideDrawer/SlideDrawer";
 // import SlideDrawerGame from "./SlideDrawer/SlideDrawerGame";
-import VirtualBackgroundExtension from "agora-extension-virtual-background";
-import useAgora from "./hooks/useAgora";
-import useAgoraChat from "./hooks/useAgoraChat";
+// import VirtualBackgroundExtension from "agora-extension-virtual-background";
+// import useAgora from "./hooks/useAgora";
+// import useAgoraChat from "./hooks/useAgoraChat";
+import { useAgoraRTC } from "./hooks/AgoraRTCProvider";
+import { useAgoraRTM } from "./hooks/AgoraRTMProvider";
 
 // import Permissions from './Permissions'
 
@@ -24,13 +26,13 @@ import useAgoraChat from "./hooks/useAgoraChat";
 export const client = AgoraRTC.createClient({ codec: "h264", mode: "live" });
 // Create a VirtualBackgroundExtension instance
 
-export const chatClient = AgoraRTM.createInstance("2e5346b36d1f40b1bbc62472116d96de");
+// export const chatClient = AgoraRTM.createInstance("2e5346b36d1f40b1bbc62472116d96de");
 
 
 
-export const extension = new VirtualBackgroundExtension();
+// export const extension = new VirtualBackgroundExtension();
 // Register the extension
-AgoraRTC.registerExtensions([extension]);
+// AgoraRTC.registerExtensions([extension]);
 
 export default function RoomApp() {
   const [channel, setChannel] = useState("demo_channel");
@@ -39,12 +41,16 @@ export default function RoomApp() {
   // eslint-disable-next-line
   const [token, setToken] = useState("007eJxTYPCNtm5i/sPmxvNRI3Ole0v/xodHem5Pm80RPXliv5H9s48KDOYmhqlmhpZGhklGFiZpJilJSclpqUnJhpZmSckpxsYWa7jnJTcEMjJY6a9jYWSAQBCfhyElNTc/PjkjMS8vNYeBAQA1zCJS");
 
-  let channelName = channel;
+  // let channelName = channel;
   // eslint-disable-next-line
 
 
   // eslint-disable-next-line
-  const { initRm, messages, sendChannelMessage, color,
+  const {
+    initRm,
+    messages,
+    sendChannelMessage,
+    color,
     pressedBuzzer,
     clearPressedBuzzer,
     buzzersList,
@@ -61,10 +67,8 @@ export default function RoomApp() {
     pinUser,
     pinUserAction,
     forceEnableVideo
-  } = useAgoraChat(
-    chatClient,
-    channelName,
-  );
+  } = useAgoraRTM();
+
   const [poketoUser, setPokeToUser] = useState("");
 
   const {
@@ -87,7 +91,9 @@ export default function RoomApp() {
     remoteUsersMap,
     remoteUsersSet,
     forceVideo
-  } = useAgora(client, extension);
+  } = useAgoraRTC()
+
+  //useAgora(client, extension);
 
   useEffect(() => {
 
