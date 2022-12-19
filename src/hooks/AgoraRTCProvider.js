@@ -7,7 +7,7 @@ import React, { useContext, useEffect, useState } from "react";
 import VirtualBackgroundExtension from "agora-extension-virtual-background";
 
 export const AgoraRTCContext = React.createContext(null);
-export const appid = "2e5346b36d1f40b1bbc62472116d96de";
+export const appid = "61a0d4c67a4342c49298fdd84f9f0f03";
 export const client = AgoraRTC.createClient({ codec: "h264", mode: "rtc" });
 
 
@@ -278,6 +278,8 @@ const AgoraRTCProvider = ({ children }) => {
     }
 
     async function join(channel, token, initRm, username_detail) {
+        console.log("Join --- client", client)
+
         if (!client) return;
 
         console.log("Join --- 1")

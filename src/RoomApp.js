@@ -26,7 +26,7 @@ import { useAgoraRTM } from "./hooks/AgoraRTMProvider";
 // export const client = AgoraRTC.createClient({ codec: "h264", mode: "rtc" });
 // Create a VirtualBackgroundExtension instance
 
-// export const chatClient = AgoraRTM.createInstance("2e5346b36d1f40b1bbc62472116d96de");
+// export const chatClient = AgoraRTM.createInstance("64dfb90f167841ceb1b3eadf38401");
 
 
 
@@ -37,9 +37,8 @@ import { useAgoraRTM } from "./hooks/AgoraRTMProvider";
 export default function RoomApp() {
   const [channel, setChannel] = useState("demo_channel");
   // // eslint-disable-next-line
-  // const [appid, setAppid] = useState("2e5346b36d1f40b1bbc62472116d96de");
   // eslint-disable-next-line
-  const [token, setToken] = useState("007eJxTYJC6bJlyuKVvS6d6qerkzXu81+lubw7lyn/4x/yQZcv7l1sUGMxNDFPNDC2NDJOMLEzSTFKSkpLTUpOSDS3NkpJTjI0telTnJTcEMjI8kJ/DxMgAgSA+D0NKam5+fHJGYl5eag4DAwCwxSPt");
+  const [token, setToken] = useState("007eJxTYLDUbFmQZ6CqNas+dUL7L3+G2XJtpcb3+lojJVrPyDw7u0mBwcww0SDFJNnMPNHE2MQo2cTSyNIiLSXFwiTNMs0gzcB4kfKC5IZARoYK32esjAwQCOLzMKSk5ubHJ2ck5uWl5jAwAADM6SFP");
 
   // let channelName = channel;
   // eslint-disable-next-line
@@ -50,7 +49,7 @@ export default function RoomApp() {
     initRm,
     messages,
     sendChannelMessage,
-    color,
+    // color,
     pressedBuzzer,
     clearPressedBuzzer,
     buzzersList,
@@ -173,7 +172,7 @@ export default function RoomApp() {
   }, [spotlightedUser])
 
   useEffect(() => {
-    console.log("")
+    console.log("Hello world")
     if (pinUser?.length > 0) {
       const user = remoteUsersMap.get(pinUser)
       setPinUserDetails(user)
@@ -369,6 +368,7 @@ export default function RoomApp() {
                   className="btn btn-primary btn-sm"
                   disabled={joinState}
                   onClick={() => {
+                    console.log("Join --- channel " + channel)
                     join(channel, token, initRm, username);
                   }}
                 >
