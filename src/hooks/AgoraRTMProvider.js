@@ -7,7 +7,7 @@ import randomColor from "randomcolor";
 const AgoraRTMContext = React.createContext(null);
 
 
-export const chatClient = AgoraRTM.createInstance(appid);
+export const chatClient = AgoraRTM.createInstance("2e5346b36d1f40b1bbc62472116d96de");
 let channelName = "demo_channel";
 
 const AgoraRTMProvider = ({ children }) => {
