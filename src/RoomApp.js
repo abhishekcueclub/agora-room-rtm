@@ -83,6 +83,7 @@ export default function RoomApp() {
     muteAudioState,
     updateUsername,
     username,
+    isUserAudience,
     currentSpeaker,
     setBackgroundBlurring,
     setBackgroundColor,
@@ -438,6 +439,8 @@ export default function RoomApp() {
 
                     <br />
                     <br />
+                    {!isUserAudience && (
+                       <>
                     <button
                       type="button"
                       className="btn btn-primary btn-sm"
@@ -461,6 +464,8 @@ export default function RoomApp() {
                       {!muteVideoState ? "MuteVideo" : "UnmuteVideo"}
 
                     </button>
+                    </>
+                    )}
                   </div> : null
               }
               {/* remoteUsersMap,

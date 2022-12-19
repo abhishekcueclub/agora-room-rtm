@@ -8,7 +8,7 @@ import VirtualBackgroundExtension from "agora-extension-virtual-background";
 
 export const AgoraRTCContext = React.createContext(null);
 export const appid = "61a0d4c67a4342c49298fdd84f9f0f03";
-export const client = AgoraRTC.createClient({ codec: "h264", mode: "rtc" });
+export const client = AgoraRTC.createClient({ codec: "h264", mode: "live" });
 
 
 // Register the extension
@@ -39,7 +39,7 @@ const AgoraRTCProvider = ({ children }) => {
     const [processor, setProcessor] = useState(null)
     // eslint-disable-next-line
     const [virtualBackgroundEnabled, setVirtualBackgroundEnabled] = useState(false)
-
+    const [isUserAudience,setIsUserAudience] = useState(true);
 
     // Initialization
     async function getProcessorInstance() {
@@ -255,6 +255,7 @@ const AgoraRTCProvider = ({ children }) => {
 
 
     async function updateUsername(name) {
+        setIsUserAudience(name && name.startsWith('cue') ? false : true)
         setUsername(name)
     }
     async function createLocalTracks() {
@@ -286,7 +287,10 @@ const AgoraRTCProvider = ({ children }) => {
         const [microphoneTrack, cameraTrack] = await createLocalTracks();
 
         await client.join(appid, channel, token, username_detail);
-        await client.publish([microphoneTrack, cameraTrack]);
+        await client.setClientRole(isUserAudience ? 'audience':'host');
+        if(!isUserAudience){
+            await client.publish([microphoneTrack, cameraTrack]);
+        }
         microphoneTrack.setEnabled(false)
         cameraTrack.setEnabled(false)
         setJoinState(true);
@@ -436,6 +440,7 @@ const AgoraRTCProvider = ({ children }) => {
                 muteAudioState,
                 // userId,
                 username,
+                isUserAudience,
                 updateUsername,
                 currentSpeaker,
                 setBackgroundBlurring,
