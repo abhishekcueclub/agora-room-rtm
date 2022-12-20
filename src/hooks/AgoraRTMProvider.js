@@ -1,6 +1,9 @@
 import { AdditionalAction, ModeratorToOne, OneToMany, OneToModerator } from "./AgoraConstant";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
+// alert.show("Oh look, an alert!");
+// alert.error("You just broke something!");
+// alert.success("It's ok now!");
 import AgoraRTM from "agora-rtm-sdk";
 // import { appid } from "./AgoraRTCProvider";
 import randomColor from "randomcolor";
@@ -16,9 +19,7 @@ let channelName = "demo_channel";
 const AgoraRTMProvider = ({ children }) => {
     const alert = useAlert();
 
-    // alert.show("Oh look, an alert!");
-    // alert.error("You just broke something!");
-    // alert.success("It's ok now!");
+
     let [messages, setMessages] = useState([]);
     // eslint-disable-next-line
     let [members, setMembers] = useState([]);

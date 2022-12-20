@@ -38,7 +38,7 @@ export default function RoomApp() {
   const [channel, setChannel] = useState("demo_channel");
   // // eslint-disable-next-line
   // eslint-disable-next-line
-  const [token, setToken] = useState("007eJxTYHh/aS6LqsV/7g2WzTwbQ0oCW/PZqsrlknf90Wn/xP/XOEKBwdzEMNXM0NLIMMnIwiTNJCUpKTktNSnZ0NIsKTnF2NjizrSFyQ2BjAwsaV8YGRkgEMTnYUhJzc2PT85IzMtLzWFgAAANNCIw");
+  const [token, setToken] = useState("");
 
   // let channelName = channel;
   // eslint-disable-next-line
