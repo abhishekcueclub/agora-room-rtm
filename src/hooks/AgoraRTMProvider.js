@@ -7,7 +7,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import AgoraRTM from "agora-rtm-sdk";
 // import { appid } from "./AgoraRTCProvider";
 import randomColor from "randomcolor";
-import { useAgoraRTC } from "./AgoraRTCProvider";
+// import { useAgoraRTC } from "./AgoraRTCProvider";
 import { useAlert } from "react-alert";
 
 const AgoraRTMContext = React.createContext(null);
@@ -90,19 +90,13 @@ const AgoraRTMProvider = ({ children }) => {
         let user = await chatClient.getUserAttributes(uid);
         const messageObj = JSON.parse(data?.text)
         processOneToManyMessage(messageObj, uid)
-
-        //  else if (messageObj?.action === "poked") {
-        //     setPoked(uid)
-        // }
     }
 
     async function sendChannelMessage(text) {
 
         const message = JSON.stringify({ text: text, action: OneToMany.TEXT })
-
-        channel
-            .sendMessage({ text: message })
-            .then(async () => {
+        sendMessageChannel(message, function (result, error) {
+            if (result != null) {
                 console.log("==>send ", JSON.stringify(text))
                 const data = {
                     author: "me",
@@ -110,54 +104,49 @@ const AgoraRTMProvider = ({ children }) => {
                     data: { text: text },
                 }
                 setCurrentMessage(data);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+            }
+        })
     }
 
     async function pressedBuzzer(text) {
         const message = JSON.stringify({ action: AdditionalAction.PRESS_BUZZER })
-        channel
-            .sendMessage({ text: message })
-            .then(async () => {
-                console.log("==>send pressedBuzzer ", JSON.stringify(text))
 
+        sendMessageChannel(message, function (result, error) {
+            if (result != null) {
                 setBuzzerIsPressedBy(text);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+            }
+        })
     }
-
+    async function clearPressedBuzzer() {
+        const message = JSON.stringify({ action: AdditionalAction.CLEAR_BUZZER })
+        sendMessageChannel(message, function (result, error) {
+            if (result != null) {
+                setBuzzerIsPressedBy("");
+            }
+        })
+    }
 
     async function sendChannelMessageToPeer(peerId) {
         console.log("sendChannelMessageToPeer to" + peerId)
 
         const message = JSON.stringify({ action: AdditionalAction.POKE_USER })
+        sendMessageToPeer(message, peerId, function (result, error) {
+            if (result != null) {
+                console.log("==>sendMessageToPeer ", message)
+            }
+        })
+        // chatClient
+        //     .sendMessageToPeer({ text: message, offline: false }, peerId)
+        //     .then(async () => {
+        //         console.log("==>sendChannelMessageToPeer ", JSON.stringify(message))
 
-        chatClient
-            .sendMessageToPeer({ text: message, offline: false }, peerId)
-            .then(async () => {
-                console.log("==>sendChannelMessageToPeer ", JSON.stringify(message))
-
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+        //     })
+        //     .catch((err) => {
+        //         console.log(err);
+        //     });
     }
 
-    async function clearPressedBuzzer() {
-        const message = JSON.stringify({ action: AdditionalAction.CLEAR_BUZZER })
-        channel
-            .sendMessage({ text: message })
-            .then(async () => {
-                setBuzzerIsPressedBy("");
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    }
+
 
     useEffect(() => {
         if (buzzerPressedBy?.length > 0) {
@@ -175,15 +164,21 @@ const AgoraRTMProvider = ({ children }) => {
 
         const message = JSON.stringify({ action: ModeratorToOne.FORCE_MUTED_USER_AUDIO })
 
-        chatClient
-            .sendMessageToPeer({ text: message, offline: false }, peerId)
-            .then(async () => {
-                console.log("==>mutePeerAudio ", JSON.stringify(message))
+        sendMessageToPeer(message, peerId, function (result, error) {
+            if (result != null) {
+                console.log("==>sendMessageToPeer ", message)
+            }
+        })
 
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+        // chatClient
+        //     .sendMessageToPeer({ text: message, offline: false }, peerId)
+        //     .then(async () => {
+        //         console.log("==>mutePeerAudio ", JSON.stringify(message))
+
+        //     })
+        //     .catch((err) => {
+        //         console.log(err);
+        //     });
     }
 
 
@@ -192,49 +187,76 @@ const AgoraRTMProvider = ({ children }) => {
 
         const message = JSON.stringify({ action: ModeratorToOne.FORCE_MUTED_USER_VIDEO })
 
-        chatClient
-            .sendMessageToPeer({ text: message, offline: false }, peerId)
-            .then(async () => {
-                console.log("==>mutePeerVideo ", JSON.stringify(message))
+        sendMessageToPeer(message, peerId, function (result, error) {
+            if (result != null) {
+                console.log("==>sendMessageToPeer ", message)
+            }
+        })
 
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+        // chatClient
+        //     .sendMessageToPeer({ text: message, offline: false }, peerId)
+        //     .then(async () => {
+        //         console.log("==>mutePeerVideo ", JSON.stringify(message))
+
+        //     })
+        //     .catch((err) => {
+        //         console.log(err);
+        //     });
     }
 
 
-    async function spotlightUserAction(userId, username) {
-
-        const message = JSON.stringify({ text: userId === spotlightedUser ? "" : userId, action: OneToMany.SPOTLIGHTED_USER })
+    async function sendMessageChannel(message, callback) {
         channel
             .sendMessage({ text: message })
             .then(async () => {
+                callback(message, null)
+            })
+            .catch((err) => {
+                console.error(err);
+                callback(null, err)
+            });
+    }
+    async function spotlightUserAction(userId, username) {
+
+        const message = JSON.stringify({ text: userId === spotlightedUser ? "" : userId, action: OneToMany.SPOTLIGHTED_USER })
+        sendMessageChannel(message, function (result, error) {
+            if (result != null) {
                 console.log("==>spotlightUserAction ", JSON.stringify(userId))
                 if (userId === spotlightedUser) {
                     removePeerSpotlight(spotlightedUser)
                 }
                 setSpotlightedUser(userId === spotlightedUser ? "" : userId)
-
-
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-        // }
-
+            }
+        })
     }
-    async function removePeerSpotlight(peerId) {
-        console.log("removePeerSpotlight to" + peerId)
-        const message = JSON.stringify({ action: OneToMany.REMOVED_SPOTLIGHTED_USER })
+
+
+    async function sendMessageToPeer(message, peerId, callback) {
         chatClient
             .sendMessageToPeer({ text: message, offline: false }, peerId)
             .then(async () => {
-                console.log("==>removePeerSpotlight ", JSON.stringify(message))
+                callback({
+                    message,
+                    peerId
+                }, null)
             })
             .catch((err) => {
                 console.log(err);
+                callback(null, err)
+
             });
+    }
+
+    async function removePeerSpotlight(peerId) {
+        console.log("removePeerSpotlight to" + peerId)
+        const message = JSON.stringify({ action: OneToMany.REMOVED_SPOTLIGHTED_USER })
+        sendMessageToPeer(message, peerId, function (result, error) {
+            if (result != null) {
+                console.log("==>sendMessageToPeer ", message)
+            }
+        })
+
+
     }
 
     function pinUserAction(userId) {
@@ -252,11 +274,8 @@ const AgoraRTMProvider = ({ children }) => {
 
     function processOneToOneMessage(agoraRTMObject, memberId) {
         console.log("processOneToOneMessage===>", agoraRTMObject)
-        // alert.success("your video is disabled " + agoraRTMObject["action"]);
-
         if (agoraRTMObject.action === OneToModerator.HAND_RAISED) {
             alert.success("hand raised request");
-
         }
         else if (agoraRTMObject.action === AdditionalAction.POKE_USER) {
             setPoked(memberId)
@@ -269,14 +288,12 @@ const AgoraRTMProvider = ({ children }) => {
 
         } else if (agoraRTMObject.action === ModeratorToOne.FORCE_MUTED_USER_AUDIO) {
             alert.success("your audio is disabled");
-            // forceAudio(true)
             setDisableAudio(true)
         } else if (agoraRTMObject.action === ModeratorToOne.INVITED_ON_STAGE) {
 
         } else if (agoraRTMObject.action === ModeratorToOne.FORCE_MUTED_USER_VIDEO) {
             alert.success("your video is disabled");
             setDisableVideo(true)
-            // forceVideo(true)
         } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_ACCEPTED) {
 
         } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_REJECTED) {
@@ -290,24 +307,17 @@ const AgoraRTMProvider = ({ children }) => {
 
     function processOneToManyMessage(agoraRTMObject, uid) {
         console.log("processOneToManyMessage===>", agoraRTMObject)
-
-
-
-
-
         if (agoraRTMObject.action === AdditionalAction.PRESS_BUZZER) {
             setBuzzerIsPressedBy(uid)
 
         } else if (agoraRTMObject.action === AdditionalAction.CLEAR_BUZZER) {
             setBuzzersList([])
-
         }
         else if (agoraRTMObject.action === OneToMany.SPOTLIGHTED_USER) {
             alert.success("SPOTLIGHTED_USER");
             setSpotlightedUser(agoraRTMObject?.text)
             setForceEnableVideo(false)
         } else if (agoraRTMObject.action === OneToMany.TEXT) {
-
             const dataMessage = {
                 author: "them",
                 type: 'text',
@@ -316,9 +326,7 @@ const AgoraRTMProvider = ({ children }) => {
                 },
             }
             setCurrentMessage(dataMessage);
-        }
-
-        else if (agoraRTMObject.action === OneToMany.REMOVED_SPOTLIGHTED_USER) {
+        } else if (agoraRTMObject.action === OneToMany.REMOVED_SPOTLIGHTED_USER) {
             setForceEnableVideo(true)
         } else if (agoraRTMObject.action === OneToMany.MAKE_ROOM_PUBLIC) {
             alert.success("your audio is disabled");
@@ -372,7 +380,7 @@ const AgoraRTMProvider = ({ children }) => {
 const useAgoraRTM = () => {
     const agoraObject = useContext(AgoraRTMContext);
     if (agoraObject == null) {
-        throw new Error("useAgoraRTC() called outside of a AgoraRTMProvider?");
+        throw new Error("useAgoraRTM() called outside of a AgoraRTMProvider?");
     }
     return agoraObject;
 };
