@@ -135,15 +135,6 @@ const AgoraRTMProvider = ({ children }) => {
                 console.log("==>sendMessageToPeer ", message)
             }
         })
-        // chatClient
-        //     .sendMessageToPeer({ text: message, offline: false }, peerId)
-        //     .then(async () => {
-        //         console.log("==>sendChannelMessageToPeer ", JSON.stringify(message))
-
-        //     })
-        //     .catch((err) => {
-        //         console.log(err);
-        //     });
     }
 
 
@@ -169,22 +160,11 @@ const AgoraRTMProvider = ({ children }) => {
                 console.log("==>sendMessageToPeer ", message)
             }
         })
-
-        // chatClient
-        //     .sendMessageToPeer({ text: message, offline: false }, peerId)
-        //     .then(async () => {
-        //         console.log("==>mutePeerAudio ", JSON.stringify(message))
-
-        //     })
-        //     .catch((err) => {
-        //         console.log(err);
-        //     });
     }
 
 
     async function mutePeerVideo(peerId) {
         console.log("mutePeerVideo to" + peerId)
-
         const message = JSON.stringify({ action: ModeratorToOne.FORCE_MUTED_USER_VIDEO })
 
         sendMessageToPeer(message, peerId, function (result, error) {
@@ -192,16 +172,6 @@ const AgoraRTMProvider = ({ children }) => {
                 console.log("==>sendMessageToPeer ", message)
             }
         })
-
-        // chatClient
-        //     .sendMessageToPeer({ text: message, offline: false }, peerId)
-        //     .then(async () => {
-        //         console.log("==>mutePeerVideo ", JSON.stringify(message))
-
-        //     })
-        //     .catch((err) => {
-        //         console.log(err);
-        //     });
     }
 
 
