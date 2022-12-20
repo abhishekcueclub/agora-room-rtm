@@ -225,6 +225,9 @@ const AgoraRTCProvider = ({ children }) => {
 
 
     async function forceVideo(forceMute) {
+        console.log("forceVideo: ", forceMute)
+        console.log("forceVideo: localVideoTrack", localVideoTrack)
+
         if (localVideoTrack != null && forceMute) {
             console.log("forceVideo: ", forceMute)
             localVideoTrack.setEnabled(!forceMute)

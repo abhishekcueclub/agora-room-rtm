@@ -38,7 +38,7 @@ export default function RoomApp() {
   const [channel, setChannel] = useState("demo_channel");
   // // eslint-disable-next-line
   // eslint-disable-next-line
-  const [token, setToken] = useState("007eJxTYLDUbFmQZ6CqNas+dUL7L3+G2XJtpcb3+lojJVrPyDw7u0mBwcww0SDFJNnMPNHE2MQo2cTSyNIiLSXFwiTNMs0gzcB4kfKC5IZARoYK32esjAwQCOLzMKSk5ubHJ2ck5uWl5jAwAADM6SFP");
+  const [token, setToken] = useState("");
 
   // let channelName = channel;
   // eslint-disable-next-line
@@ -65,7 +65,9 @@ export default function RoomApp() {
     mutePeerVideo,
     pinUser,
     pinUserAction,
-    forceEnableVideo
+    forceEnableVideo,
+    isShareShareStatus,
+    shareShareAction
   } = useAgoraRTM();
 
   const [poketoUser, setPokeToUser] = useState("");
@@ -96,6 +98,12 @@ export default function RoomApp() {
   } = useAgoraRTC()
 
   //useAgora(client, extension);
+
+
+  useEffect(() => {
+    setIsShareShare(isShareShareStatus)
+    // eslint-disable-next-line
+  }, [isShareShareStatus])
 
   useEffect(() => {
 
