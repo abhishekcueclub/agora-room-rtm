@@ -42,6 +42,7 @@ const AgoraRTMProvider = ({ children }) => {
     let [disableVideo, setDisableVideo] = useState(false);
     let [spotlightedUser, setSpotlightedUser] = useState("");
     let [pinUser, setPinUser] = useState("");
+    let [isShareShareStatus, setShareShareStatus] = useState(false);
 
 
     const initRm = async (userId) => {
@@ -186,6 +187,23 @@ const AgoraRTMProvider = ({ children }) => {
                 callback(null, err)
             });
     }
+
+
+
+
+    async function shareShareAction(status, callback) {
+        const message = JSON.stringify({ text: { status: status }, action: OneToMany.SCREEN_SHARED })
+        sendMessageChannel(message, function (result, error) {
+            if (result != null) {
+                callback(result, null)
+                console.log("==>shareShareAction ", JSON.stringify(userId))
+            } else {
+                callback(null, error)
+            }
+        })
+    }
+
+
     async function spotlightUserAction(userId, username) {
 
         const message = JSON.stringify({ text: userId === spotlightedUser ? "" : userId, action: OneToMany.SPOTLIGHTED_USER })
@@ -310,6 +328,8 @@ const AgoraRTMProvider = ({ children }) => {
 
         } else if (agoraRTMObject.action === OneToMany.STREAM_STATUS) {
 
+        } else if (agoraRTMObject.action === OneToMany.SCREEN_SHARED) {
+            setShareShareStatus(agoraRTMObject?.text?.status)
         }
     }
 
@@ -338,6 +358,8 @@ const AgoraRTMProvider = ({ children }) => {
                 pinUser,
                 pinUserAction,
                 forceEnableVideo,
+                shareShareAction,
+                isShareShareStatus
             }}
         >
             {children}

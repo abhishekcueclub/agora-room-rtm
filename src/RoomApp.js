@@ -65,7 +65,9 @@ export default function RoomApp() {
     mutePeerVideo,
     pinUser,
     pinUserAction,
-    forceEnableVideo
+    forceEnableVideo,
+    isShareShareStatus,
+    shareShareAction
   } = useAgoraRTM();
 
   const [poketoUser, setPokeToUser] = useState("");
@@ -92,6 +94,12 @@ export default function RoomApp() {
   } = useAgoraRTC()
 
   //useAgora(client, extension);
+
+
+  useEffect(() => {
+    setIsShareShare(isShareShareStatus)
+    // eslint-disable-next-line
+  }, [isShareShareStatus])
 
   useEffect(() => {
 

@@ -64,7 +64,9 @@ export const OneToMany = {
     RECORDING_STARTED: 'RECORDING_STARTED',
     RECORDING_STOPED: 'RECORDING_STOPED',
     REACTION_SEND: 'REACTION_SEND', // all to all
-    STREAM_STATUS: "STREAM_STATUS" // casting information to All 
+    STREAM_STATUS: "STREAM_STATUS", // casting information to All 
+    SCREEN_SHARED: 'SCREEN_SHARED',
+
 };
 
 
