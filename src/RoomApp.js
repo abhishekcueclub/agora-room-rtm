@@ -298,7 +298,7 @@ export default function RoomApp() {
             className="btn btn-primary btn-sm"
             disabled={!joinState}
             onClick={() => {
-              handleScreenShare(true);
+              handleScreenShare(false);
             }}
           >
             {isSharingEnabled ? 'stop screen share' : 'start screen share'}
