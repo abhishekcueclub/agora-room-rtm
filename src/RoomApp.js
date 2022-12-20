@@ -38,7 +38,7 @@ export default function RoomApp() {
   const [channel, setChannel] = useState("demo_channel");
   // // eslint-disable-next-line
   // eslint-disable-next-line
-  const [token, setToken] = useState("007eJxTYLDUbFmQZ6CqNas+dUL7L3+G2XJtpcb3+lojJVrPyDw7u0mBwcww0SDFJNnMPNHE2MQo2cTSyNIiLSXFwiTNMs0gzcB4kfKC5IZARoYK32esjAwQCOLzMKSk5ubHJ2ck5uWl5jAwAADM6SFP");
+  const [token, setToken] = useState("007eJxTYHh/aS6LqsV/7g2WzTwbQ0oCW/PZqsrlknf90Wn/xP/XOEKBwdzEMNXM0NLIMMnIwiTNJCUpKTktNSnZ0NIsKTnF2NjizrSFyQ2BjAwsaV8YGRkgEMTnYUhJzc2PT85IzMtLzWFgAAANNCIw");
 
   // let channelName = channel;
   // eslint-disable-next-line
