@@ -84,6 +84,9 @@ export default function RoomApp() {
     updateUsername,
     username,
     isUserAudience,
+    isSharingEnabled,
+    localscreenTrack,
+    handleScreenShareClick,
     currentSpeaker,
     setBackgroundBlurring,
     setBackgroundColor,
@@ -193,29 +196,49 @@ export default function RoomApp() {
           <br />
 
           {
-            spotlightedUserDetails !== null ? <> <div className="remote-player-wrapper" key={spotlightedUser} >
-              <MediaPlayer
-                isSelf={false}
-                videoTrack={spotlightedUserDetails?.videoTrack}
-                audioTrack={spotlightedUserDetails?.audioTrack}
-                username={spotlightedUserDetails?.uid}
-              ></MediaPlayer>
-              <label>{spotlightedUserDetails?.uid} </label> {" || "}
-              <label> {spotlightedUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
-              {" || "}
-              <label> {spotlightedUserDetails?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
-            </div> </> : pinUserDetails !== null ? <> <div className="remote-player-wrapper" key={pinUser} >
-              <MediaPlayer
-                isSelf={false}
-                videoTrack={pinUserDetails?.videoTrack}
-                audioTrack={pinUserDetails?.audioTrack}
-                username={pinUserDetails?.uid}
-              ></MediaPlayer>
-              <label>{pinUserDetails?.uid} </label> {" || "}
-              <label> {pinUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
-              {" || "}
-              <label> {pinUserDetails?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
-            </div> </> : null
+            spotlightedUserDetails !== null ?
+              <>
+                <div className="remote-player-wrapper" key={spotlightedUser} >
+                  <MediaPlayer
+                    isSelf={false}
+                    videoTrack={spotlightedUserDetails?.videoTrack}
+                    audioTrack={spotlightedUserDetails?.audioTrack}
+                    username={spotlightedUserDetails?.uid}
+                  ></MediaPlayer>
+                  <label>{spotlightedUserDetails?.uid} </label> {" || "}
+                  <label> {spotlightedUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
+                  {" || "}
+                  <label> {spotlightedUserDetails?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
+                </div>
+              </> :
+              pinUserDetails !== null ?
+                <>
+                  <div className="remote-player-wrapper" key={pinUser} >
+                    <MediaPlayer
+                      isSelf={false}
+                      videoTrack={pinUserDetails?.videoTrack}
+                      audioTrack={pinUserDetails?.audioTrack}
+                      username={pinUserDetails?.uid}
+                    />
+                    <label>{pinUserDetails?.uid} </label> {" || "}
+                    <label> {pinUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
+                    {" || "}
+                    <label> {pinUserDetails?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
+                  </div>
+                </> : isSharingEnabled ? <>
+                  <div className="remote-player-wrapper" key={pinUser} >
+                    <MediaPlayer
+                      isSelf={false}
+                      videoTrack={localscreenTrack}
+                      //audioTrack={pinUserDetails?.audioTrack}
+                      username={'ttttttt'}
+                    />
+                    <label>{pinUserDetails?.uid} </label> {" || "}
+                    <label> {pinUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
+                    {" || "}
+                    <label> {pinUserDetails?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
+                  </div>
+                </> : null
           }
 
 
@@ -250,6 +273,18 @@ export default function RoomApp() {
           }}
         >
             Leave
+          </button>
+          {"        "}
+          <button
+            id="leave"
+            type="button"
+            className="btn btn-primary btn-sm"
+            disabled={!joinState}
+            onClick={() => {
+              handleScreenShareClick();
+            }}
+          >
+            {isSharingEnabled ? 'stop screen share' : 'start screen share'}
           </button>
           {"        "}
 
@@ -440,31 +475,31 @@ export default function RoomApp() {
                     <br />
                     <br />
                     {!isUserAudience && (
-                       <>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      disabled={!joinState}
-                      onClick={() => {
-                        muteAudio(false, setDisableAudio)
-                      }}
-                    >
-                      {!muteAudioState ? "MuteAudio" : "UnmuteAudio"}
-                    </button>
-                    {"        "}
-                    <button
-                      id="leave"
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      disabled={!joinState}
-                      onClick={() => {
-                        muteVideo(false, setDisableVideo);
-                      }}
-                    >
-                      {!muteVideoState ? "MuteVideo" : "UnmuteVideo"}
+                      <>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          disabled={!joinState}
+                          onClick={() => {
+                            muteAudio(false, setDisableAudio)
+                          }}
+                        >
+                          {!muteAudioState ? "MuteAudio" : "UnmuteAudio"}
+                        </button>
+                        {"        "}
+                        <button
+                          id="leave"
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          disabled={!joinState}
+                          onClick={() => {
+                            muteVideo(false, setDisableVideo);
+                          }}
+                        >
+                          {!muteVideoState ? "MuteVideo" : "UnmuteVideo"}
 
-                    </button>
-                    </>
+                        </button>
+                      </>
                     )}
                   </div> : null
               }
