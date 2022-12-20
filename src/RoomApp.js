@@ -66,8 +66,8 @@ export default function RoomApp() {
     pinUser,
     pinUserAction,
     forceEnableVideo,
-    isShareShareStatus,
-    shareShareAction
+    shareShareAction,
+    isShareShareStatus
   } = useAgoraRTM();
 
   const [poketoUser, setPokeToUser] = useState("");
@@ -86,6 +86,7 @@ export default function RoomApp() {
     updateUsername,
     username,
     isUserAudience,
+    setIsSharingEnabled,
     isSharingEnabled,
     localscreenTrack,
     handleScreenShareClick,
@@ -101,8 +102,7 @@ export default function RoomApp() {
 
 
   useEffect(() => {
-    setIsShareShare(isShareShareStatus)
-    // eslint-disable-next-line
+    setIsSharingEnabled(isShareShareStatus)
   }, [isShareShareStatus])
 
   useEffect(() => {
@@ -150,8 +150,17 @@ export default function RoomApp() {
   const drawerToggleClickHandler = () => {
     setDrawerOpen(!drawerOpen)
   }
-
-
+  const handleScreenShare = (isSharingEnabled) => {
+    handleScreenShareClick(isSharingEnabled,function(resp){
+      shareShareAction(resp, function(result,error){
+        if(result){
+          console.log('screen share sucess ',result)
+        }else{
+          console.log('screen share failed ',error)
+        }
+      })
+    });
+  }
   // eslint-disable-next-line
   const drawerGameToggleClickHandler = () => {
     setDrawerGameOpen(!drawerGameOpen)
@@ -289,7 +298,7 @@ export default function RoomApp() {
             className="btn btn-primary btn-sm"
             disabled={!joinState}
             onClick={() => {
-              handleScreenShareClick();
+              handleScreenShare(true);
             }}
           >
             {isSharingEnabled ? 'stop screen share' : 'start screen share'}

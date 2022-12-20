@@ -318,20 +318,8 @@ const AgoraRTCProvider = ({ children }) => {
         await client.leave();
     }
 
-    async function handleScreenShareClick () {
-        // await AgoraRTC.onAutoplayFailed = () => {
-        //     // Create button for the user interaction.
-        //     const btn = document.createElement("button");
-        //     // Set the button text.
-        //     btn.innerText = "Click me to resume the audio/video playback";
-        //     // Remove the button when onClick event occurs.
-        //     btn.onClick = () => {
-        //         btn.remove();
-        //     };
-        //     // Append the button to the UI.
-        //     document.body.append(btn);
-        // }
-        if(isSharingEnabled == false) {
+    async function handleScreenShareClick (status, callback) {
+        if(status == false) {
             // Create a screen track for screen sharing.
             //[ILocalVideoTrack, ILocalAudioTrack] | ILocalVideoTrack>
             const screenTrack  = await AgoraRTC.createScreenVideoTrack();
@@ -361,6 +349,7 @@ const AgoraRTCProvider = ({ children }) => {
             //isSharingEnabled = false;
             setIsSharingEnabled(false);
         }
+        callback(!status);
     }
     useEffect(() => {
         if (!client) return;
@@ -483,6 +472,7 @@ const AgoraRTCProvider = ({ children }) => {
                 join,
                 handleScreenShareClick,
                 isSharingEnabled,
+                setIsSharingEnabled,
                 remoteUsers,
                 muteVideo,
                 muteAudio,
