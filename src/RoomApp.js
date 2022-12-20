@@ -231,7 +231,7 @@ export default function RoomApp() {
                       isSelf={false}
                       videoTrack={localscreenTrack}
                       //audioTrack={pinUserDetails?.audioTrack}
-                      username={'ttttttt'}
+                      username={'screen share'}
                     />
                     <label>{pinUserDetails?.uid} </label> {" || "}
                     <label> {pinUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>

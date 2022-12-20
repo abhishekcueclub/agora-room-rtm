@@ -332,9 +332,10 @@ const AgoraRTCProvider = ({ children }) => {
             // Create a screen track for screen sharing.
             //[ILocalVideoTrack, ILocalAudioTrack] | ILocalVideoTrack>
             const screenTrack  = await AgoraRTC.createScreenVideoTrack();
+            console.log('screenTrack', screenTrack)
             setLocalScreenTack(screenTrack);
             // Stop playing the local video track.
-            screenTrack.stop();
+            localVideoTrack.stop();
             // Unpublish the local video track.
             await client.unpublish(localVideoTrack);
             // Publish the screen track.
