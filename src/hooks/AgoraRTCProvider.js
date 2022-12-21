@@ -332,9 +332,9 @@ const AgoraRTCProvider = ({ children }) => {
             console.log('screenTrack', screenTrack)
             setLocalScreenTack(screenTrack);
             // Stop playing the local video track.
-            localVideoTrack.stop();
+            //localVideoTrack.stop();
             // Unpublish the local video track.
-            await client.unpublish(localVideoTrack);
+            //await client.unpublish(localVideoTrack);
             // Publish the screen track.
             await clientScreenShare.publish(screenTrack);
             // Play the screen track on local container.
