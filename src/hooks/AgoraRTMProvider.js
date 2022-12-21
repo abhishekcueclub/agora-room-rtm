@@ -1,4 +1,4 @@
-import { AdditionalAction, ModeratorToOne, OneToMany, OneToModerator } from "./AgoraConstant";
+import { AdditionalAction, ModeratorToOne, OneToMany, OneToModerator, RoomMediaType, RoomType, UserRole } from "./AgoraConstant";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 // alert.show("Oh look, an alert!");
@@ -19,6 +19,7 @@ let channelName = "demo_channel";
 const AgoraRTMProvider = ({ children }) => {
     const alert = useAlert();
 
+    const [username, setUsername] = useState("");
 
     let [messages, setMessages] = useState([]);
     // eslint-disable-next-line
@@ -38,17 +39,37 @@ const AgoraRTMProvider = ({ children }) => {
     let [forceEnableVideo, setForceEnableVideo] = useState(false);
 
 
+    let [forceRemoveUser, setForceRemoveUser] = useState(false);
     let [disableAudio, setDisableAudio] = useState(false);
     let [disableVideo, setDisableVideo] = useState(false);
     let [spotlightedUser, setSpotlightedUser] = useState("");
     let [pinUser, setPinUser] = useState("");
     let [isShareShareStatus, setShareShareStatus] = useState(false);
+    // eslint-disable-next-line
+    let [enableHandRaised, setEnableHandRaised] = useState(false);
+    // eslint-disable-next-line
+    let [isHandRaised, setHandRaised] = useState(false);
+    // eslint-disable-next-line
+    let [handRaisedUser, setHandRaisedUsers] = useState([]);
+    let [newHandRaised, setNewHandRaised] = useState("");
+    let [removehandRaised, setRemoveHandRaised] = useState("");
+    let [userRole, setUserRole] = useState("");
+    let [invitedOnStage, setInvitedOnStage] = useState("");
 
+    let [roomType, setRoomType] = useState(RoomType.PRIVATE);
+    let [roomMediaType, setRoomMediaType] = useState(RoomMediaType.AUDIO);
+
+
+    useEffect(() => {
+        console.log("RTM username " + username)
+
+    }, [username])
 
     const initRm = async (userId) => {
         await chatClient.login({
             uid: userId.toString()
         });
+        setUsername(userId)
 
         channel
             .getMembers()
@@ -109,6 +130,15 @@ const AgoraRTMProvider = ({ children }) => {
         })
     }
 
+    async function enableHandRaisedAction() {
+        const message = JSON.stringify({ action: enableHandRaised ? OneToMany.DISABLE_HAND_RAISED : OneToMany.ENABLE_HAND_RAISED })
+        sendMessageChannel(message, function (result, error) {
+            if (result != null) {
+                setEnableHandRaised(!enableHandRaised)
+            }
+        })
+    }
+
     async function pressedBuzzer(text) {
         const message = JSON.stringify({ action: AdditionalAction.PRESS_BUZZER })
 
@@ -148,6 +178,18 @@ const AgoraRTMProvider = ({ children }) => {
         }
         // eslint-disable-next-line
     }, [buzzerPressedBy]);
+
+    async function forceRemoveUserAction(peerId) {
+        console.log("forceRemoveUser to" + peerId)
+        const message = JSON.stringify({ action: ModeratorToOne.REMOVED_FROM_ROOM })
+
+        sendMessageToPeer(message, peerId, function (result, error) {
+            if (result != null) {
+                setForceRemoveUser(false)
+                console.log("==>forceRemoveUser ", message)
+            }
+        })
+    }
 
 
 
@@ -189,14 +231,39 @@ const AgoraRTMProvider = ({ children }) => {
     }
 
 
+    async function updateRoomMediaTypeAction(roomMediaTypeValue) {
+        const message = JSON.stringify({ text: "", action: OneToMany.CONVERT_VIDEO_ROOM, additionalData: { roomMediaTypeValue: roomMediaTypeValue } })
+        sendMessageChannel(message, function (result, error) {
+            if (result != null) {
+                setRoomMediaType(roomMediaTypeValue)
+                // callback(result, null)
+                console.log("==>updateRoomTypeAction ")
+            } else {
+                // callback(null, error)
+            }
+        })
+    }
+
+    async function updateRoomTypeAction(roomTypeValue) {
+        const message = JSON.stringify({ text: "", action: OneToMany.UPDATE_ROOM_TYPE, additionalData: { roomType: roomTypeValue } })
+        sendMessageChannel(message, function (result, error) {
+            if (result != null) {
+                setRoomType(roomTypeValue)
+                // callback(result, null)
+                console.log("==>updateRoomTypeAction ")
+            } else {
+                // callback(null, error)
+            }
+        })
+    }
 
 
     async function shareShareAction(status, callback) {
-        const message = JSON.stringify({ text: { status: status }, action: OneToMany.SCREEN_SHARED })
+        const message = JSON.stringify({ text: "", action: OneToMany.SCREEN_SHARED, status: status })
         sendMessageChannel(message, function (result, error) {
             if (result != null) {
                 callback(result, null)
-                console.log("==>shareShareAction ", JSON.stringify(userId))
+                console.log("==>shareShareAction ", JSON.stringify(status))
             } else {
                 callback(null, error)
             }
@@ -260,21 +327,134 @@ const AgoraRTMProvider = ({ children }) => {
     }, [currentMessage]);
 
 
+    async function acceptedRejectHandRaised(peerId, status) {
+        const message = JSON.stringify({ action: status ? ModeratorToOne.HAND_RAISE_ACCEPTED : ModeratorToOne.HAND_RAISE_REJECTED, senderId: username, peerId: peerId })
+
+        // const message = JSON.stringify({ action: AdditionalAction.POKE_USER })
+        sendMessageToPeer(message, peerId, function (result, error) {
+            if (result != null) {
+                console.log("==>sendMessageToPeer ", message)
+
+                sendMessageChannel(message, function (result, error) {
+                    if (result != null) {
+                        console.log("==>sendMessageToPeer ", message)
+                        setRemoveHandRaised(peerId)
+                    }
+                })
+            }
+        })
+    }
+
+    // async function inviteOnStageAction(peerId) {
+    //     const message = JSON.stringify({ text: "", role, peerId: peerId })
+    // sendMessageChannel(message, function (result, error) {
+    //     if (result != null) {
+    //         console.log("==>inviteOnStageAction ")
+
+    //     } else {
+    //         console.log("==>inviteOnStageAction ")
+    //     }
+    // })
+    // }
+
+    // inviteOnStageAction(username, invitedOnStage, false)
+    async function inviteOnStageAction(peerId, role) {
+        const message = JSON.stringify({
+            action: ModeratorToOne.INVITED_ON_STAGE,
+            senderId: username,
+            peerId: peerId,
+            additionalData: {
+                role: role
+            }
+        })
+        // const message = JSON.stringify({ action: AdditionalAction.POKE_USER })
+        sendMessageToPeer(message, peerId, function (result, error) {
+            if (result != null) {
+                console.log("==>inviteOnStageAction ", message)
+            }
+        })
+    }
+
+    async function acceptRejectInviteOnStageAction(peerId, role, status) {
+        const message = JSON.stringify({
+            action: status ? OneToModerator.INVITED_ON_STAGE_ACCEPT : OneToModerator.INVITED_ON_STAGE_REJECT,
+            senderId: username,
+            peerId: peerId,
+            additionalData: {
+                role: role
+            }
+        })
+
+        sendMessageChannel(message, function (result, error) {
+            if (result != null) {
+                console.log("==>inviteOnStageAction ")
+
+            } else {
+                console.log("==>inviteOnStageAction ")
+            }
+        })
+    }
+
+    async function raiseHand() {
+        const message = JSON.stringify({ text: "", action: OneToMany.HAND_RAISED, senderId: username, status: !isHandRaised })
+        sendMessageChannel(message, function (result, error) {
+            if (result != null) {
+                if (!isHandRaised) {
+                    setHandRaised(true)
+                    setNewHandRaised(username)
+                } else {
+                    setRemoveHandRaised(username)
+                    setHandRaised(false)
+                }
+            } else {
+                console.log("==>raiseHand ")
+            }
+        })
+    }
+
+
+
     function processOneToOneMessage(agoraRTMObject, memberId) {
         console.log("processOneToOneMessage===>", agoraRTMObject)
-        if (agoraRTMObject.action === OneToModerator.HAND_RAISED) {
+
+
+
+        if (agoraRTMObject.action === ModeratorToOne.REMOVED_FROM_ROOM) {
+            alert.success("You have been removed from room by mod");
+            // setRemoveHandRaised(agoraRTMObject.peerId)
+            // setHandRaised(false)
+            setForceRemoveUser(true)
+        } else if (agoraRTMObject.action === ModeratorToOne.INVITED_ON_STAGE && agoraRTMObject.additionalData.role === UserRole.LISTENER) {
+            setUserRole(UserRole.LISTENER)
+            alert.success("You are a listener");
+            setRemoveHandRaised(agoraRTMObject.peerId)
+            setHandRaised(false)
+            setUserRole(UserRole.LISTENER)
+
+        } else if (agoraRTMObject.action === ModeratorToOne.INVITED_ON_STAGE && agoraRTMObject.additionalData.role !== UserRole.LISTENER) {
+            setInvitedOnStage(agoraRTMObject.additionalData.role)
+            alert.success(`You are a ${agoraRTMObject.additionalData.role}`);
+            setRemoveHandRaised(agoraRTMObject.peerId)
+            setHandRaised(false)
+
+        } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_ACCEPTED) {
+            setUserRole(UserRole.SPEAKER)
+            alert.success("hand raise accepted");
+            setRemoveHandRaised(agoraRTMObject.peerId)
+            setHandRaised(false)
+
+        } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_REJECTED) {
+
+            alert.success("hand raise rejected");
+            setRemoveHandRaised(agoraRTMObject.peerId)
+            setHandRaised(false)
+        } else if (agoraRTMObject.action === OneToModerator.HAND_RAISED) {
             alert.success("hand raised request");
         }
         else if (agoraRTMObject.action === AdditionalAction.POKE_USER) {
             setPoked(memberId)
         }
-
-        else if (agoraRTMObject.action === OneToModerator.INVITED_ON_STAGE_ACCEPT) {
-
-        }
-        else if (agoraRTMObject.action === OneToModerator.INVITED_ON_STAGE_REJECT) {
-
-        } else if (agoraRTMObject.action === ModeratorToOne.FORCE_MUTED_USER_AUDIO) {
+        else if (agoraRTMObject.action === ModeratorToOne.FORCE_MUTED_USER_AUDIO) {
             alert.success("your audio is disabled");
             setDisableAudio(true)
         } else if (agoraRTMObject.action === ModeratorToOne.INVITED_ON_STAGE) {
@@ -293,11 +473,48 @@ const AgoraRTMProvider = ({ children }) => {
         }
     }
 
-    function processOneToManyMessage(agoraRTMObject, uid) {
-        console.log("processOneToManyMessage===>", agoraRTMObject)
-        if (agoraRTMObject.action === AdditionalAction.PRESS_BUZZER) {
-            setBuzzerIsPressedBy(uid)
 
+    function processOneToManyMessage(agoraRTMObject, uid) {
+        console.log(username + "  >processOneToManyMessage===", agoraRTMObject)
+
+        if (agoraRTMObject.action === OneToMany.CONVERT_VIDEO_ROOM) {
+            setRoomMediaType(agoraRTMObject?.additionalData.roomMediaTypeValue)
+        } else if (agoraRTMObject.action === OneToMany.UPDATE_ROOM_TYPE) {
+            setRoomType(agoraRTMObject?.additionalData.roomType)
+        } else if (agoraRTMObject.action === OneToModerator.INVITED_ON_STAGE_REJECT) {
+            alert.success(agoraRTMObject?.additionalData?.role + " invite is rejected by " + agoraRTMObject.peerId);
+            setUserRole(UserRole.LISTENER)
+
+        } else if (agoraRTMObject.action === OneToModerator.INVITED_ON_STAGE_ACCEPT) {
+            alert.success(agoraRTMObject?.additionalData?.role + " invite is accepted by " + agoraRTMObject.peerId);
+            setUserRole(UserRole.LISTENER)
+
+        } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_ACCEPTED) {
+            setRemoveHandRaised(agoraRTMObject.peerId)
+        } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_REJECTED) {
+            // if (agoraRTMObject.peerId === username) {
+            //     // setRole("")
+
+            //     alert.success("hand raise rejected");
+            // }
+            setRemoveHandRaised(agoraRTMObject.peerId)
+        } else if (agoraRTMObject.action === OneToMany.HAND_RAISED) {
+            console.log("remain handRaisedUser processOneToManyMessage===>", handRaisedUser)
+
+            if (agoraRTMObject?.status) {
+                setNewHandRaised(agoraRTMObject?.senderId)
+
+            } else {
+                setRemoveHandRaised(agoraRTMObject?.senderId)
+            }
+
+        }
+        else if (agoraRTMObject.action === OneToMany.DISABLE_HAND_RAISED) {
+            setEnableHandRaised(false)
+        } else if (agoraRTMObject.action === OneToMany.ENABLE_HAND_RAISED) {
+            setEnableHandRaised(true)
+        } else if (agoraRTMObject.action === AdditionalAction.PRESS_BUZZER) {
+            setBuzzerIsPressedBy(uid)
         } else if (agoraRTMObject.action === AdditionalAction.CLEAR_BUZZER) {
             setBuzzersList([])
         }
@@ -329,9 +546,39 @@ const AgoraRTMProvider = ({ children }) => {
         } else if (agoraRTMObject.action === OneToMany.STREAM_STATUS) {
 
         } else if (agoraRTMObject.action === OneToMany.SCREEN_SHARED) {
-            setShareShareStatus(agoraRTMObject?.text?.status)
+            setShareShareStatus(agoraRTMObject?.status)
         }
     }
+
+    // let [newHandRaised, setNewHandRaised] = useState("");
+    // let [removehandRasied, setRemoveHandRaised] = useState("");
+
+    useEffect(() => {
+        if (removehandRaised.length > 0) {
+
+            const userList = handRaisedUser?.filter((user) => {
+                return user !== removehandRaised
+            })
+            console.log("remain user processOneToManyMessage===>", userList)
+            setHandRaisedUsers(userList)
+            setRemoveHandRaised("")
+        }
+        console.log("remain removehandRaised processOneToManyMessage===>", handRaisedUser)
+        // eslint-disable-next-line
+    }, [removehandRaised])
+
+    useEffect(() => {
+        if (newHandRaised.length > 0) {
+            setHandRaisedUsers([...handRaisedUser, newHandRaised])
+            setNewHandRaised("")
+
+        }
+        console.log("remain newHandRaised processOneToManyMessage===>", handRaisedUser)
+        // eslint-disable-next-line
+    }, [newHandRaised])
+
+    // let [roomType, setRoomType] = useState(RoomType.PRIVATE);
+
 
 
     return (
@@ -359,7 +606,23 @@ const AgoraRTMProvider = ({ children }) => {
                 pinUserAction,
                 forceEnableVideo,
                 shareShareAction,
-                isShareShareStatus
+                isShareShareStatus,
+                isHandRaised,
+                enableHandRaised,
+                enableHandRaisedAction,
+                raiseHand,
+                handRaisedUser,
+                acceptedRejectHandRaised,
+                userRole,
+                inviteOnStageAction,
+                invitedOnStage,
+                acceptRejectInviteOnStageAction,
+                updateRoomTypeAction,
+                roomType,
+                updateRoomMediaTypeAction,
+                roomMediaType,
+                forceRemoveUserAction,
+                forceRemoveUser,
             }}
         >
             {children}

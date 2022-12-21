@@ -1,5 +1,7 @@
 import "./SlideDrawer.css";
 
+import { RoomMediaType, RoomType, UserRole } from "../hooks/AgoraConstant";
+
 import React from "react";
 
 export default class SlideDrawer extends React.Component {
@@ -20,6 +22,58 @@ export default class SlideDrawer extends React.Component {
                     Hide Participants
                 </button>
                 <h1>Participants {this.props.remoteUsers?.length}</h1>
+                <h1>RoomType {this?.props?.roomType}</h1>
+                <h1>RoomMediaType {this?.props?.roomMediaType}</h1>
+
+                {
+                    this?.props?.roomMediaType !== RoomMediaType.VIDEO ? <button
+                        className="btn btn-primary btn-sm"
+                        type="button"
+                        onClick={() => {
+                            this.props.updateRoomMediaTypeAction(RoomMediaType.VIDEO);
+                        }}
+                    >
+                        {RoomMediaType.VIDEO}
+                    </button> : null
+                }
+                <br />
+                {
+                    this?.props?.roomType !== RoomType.RESTRICTED ? <button
+                        className="btn btn-primary btn-sm"
+                        type="button"
+                        onClick={() => {
+                            this.props.updateRoomTypeAction(RoomType.RESTRICTED);
+                        }}
+                    >
+                        {RoomType.RESTRICTED}
+                    </button> : null
+                }
+                {" "}
+
+                {
+                    this?.props?.roomType !== RoomType.PRIVATE ? <button
+                        className="btn btn-primary btn-sm"
+                        type="button"
+                        onClick={() => {
+                            this.props.updateRoomTypeAction(RoomType.PRIVATE);
+                        }}
+                    >
+                        {RoomType.PRIVATE}
+                    </button> : null
+                }
+                {" "}
+                {
+                    this?.props?.roomType !== RoomType.PUBLIC ? <button
+                        className="btn btn-primary btn-sm"
+                        type="button"
+                        onClick={() => {
+                            this.props.updateRoomTypeAction(RoomType.PUBLIC);
+                        }}
+                    >
+                        {RoomType.PUBLIC}
+                    </button> : null
+                }
+                {" "}
 
                 <div>
                     {this.props.remoteUsers.map((user) => (
@@ -42,6 +96,20 @@ export default class SlideDrawer extends React.Component {
                                     </label>{" "}
                                 </span>
                                 )
+
+                                <span>
+
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary btn-sm"
+                                        onClick={() => {
+                                            this.props.forceRemoveUserAction(user.uid)
+                                        }}
+                                    >
+                                        Remove User
+                                    </button>
+                                </span>
+
                                 <span>
                                     {!user._audio_muted_ ? (
                                         <button
@@ -83,6 +151,48 @@ export default class SlideDrawer extends React.Component {
                                         Spotlight User
                                     </button>
                                 </span>
+
+
+                                <span>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary btn-sm"
+                                        onClick={() => {
+                                            this.props.inviteOnStageAction(user.uid, UserRole.SPEAKER)
+                                        }}
+                                    >
+                                        invited on stage
+                                    </button>
+                                </span>
+
+
+
+                                <span>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary btn-sm"
+                                        onClick={() => {
+                                            this.props.inviteOnStageAction(user.uid, UserRole.MODERATOR)
+                                        }}
+                                    >
+                                        make moderator
+                                    </button>
+                                </span>
+
+
+
+                                <span>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary btn-sm"
+                                        onClick={() => {
+                                            this.props.inviteOnStageAction(user.uid, UserRole.LISTENER)
+                                        }}
+                                    >
+                                        move to audiance
+                                    </button>
+                                </span>
+
 
                                 {/* <span>
                                     <button

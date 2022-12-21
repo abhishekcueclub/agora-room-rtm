@@ -272,7 +272,7 @@ const AgoraRTCProvider = ({ children }) => {
         // cameraTrack.setEnabled(false)
         // cameraTrack.play('me');
 
-        console.log(cameraTrack);
+        console.log("createLocalTracks===> " + cameraTrack);
 
         setLocalAudioTrack(microphoneTrack);
         setLocalVideoTrack(cameraTrack);
@@ -289,7 +289,22 @@ const AgoraRTCProvider = ({ children }) => {
         const [microphoneTrack, cameraTrack] = await createLocalTracks();
 
         await client.join(appid, channel, token, username_detail);
-        await client.publish([microphoneTrack, cameraTrack]);
+        //** camera check */
+        var devices = await AgoraRTC.getDevices();
+        var cameras = devices.filter(device => device.kind === 'videoinput');
+        console.log("cameras===>", cameras)
+        if (cameras.length > 0) {
+            // const videoTrack = await AgoraRTC.createCameraVideoTrack();
+            // console.warn(" camera Found!!!");
+            await client.publish([microphoneTrack, cameraTrack]);
+        } else {
+            await client.publish([microphoneTrack]);
+            // console.warn("No camera only audio!!!");
+        }
+
+
+
+        // await client.publish([microphoneTrack, cameraTrack]);
         microphoneTrack.setEnabled(false)
         cameraTrack.setEnabled(false)
         setJoinState(true);
