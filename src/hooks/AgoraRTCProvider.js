@@ -9,6 +9,7 @@ import VirtualBackgroundExtension from "agora-extension-virtual-background";
 export const AgoraRTCContext = React.createContext(null);
 export const appid = "61a0d4c67a4342c49298fdd84f9f0f03";
 export const client = AgoraRTC.createClient({ codec: "h264", mode: "live" });
+export const clientScreenShare = AgoraRTC.createClient({ codec: "h264", mode: "live" });
 
 
 // Register the extension
@@ -319,6 +320,9 @@ const AgoraRTCProvider = ({ children }) => {
     }
 
     async function handleScreenShareClick (status, callback) {
+        clientScreenShare.setClientRole("host");
+        const tok = "";
+        const _uid = await clientScreenShare.join(appid, 'demo_channel_a', tok, 'screen');
         if(status == false) {
             // Create a screen track for screen sharing.
             //[ILocalVideoTrack, ILocalAudioTrack] | ILocalVideoTrack>
@@ -326,11 +330,11 @@ const AgoraRTCProvider = ({ children }) => {
             console.log('screenTrack', screenTrack)
             setLocalScreenTack(screenTrack);
             // Stop playing the local video track.
-            localVideoTrack.stop();
+            //localVideoTrack.stop();
             // Unpublish the local video track.
-            await client.unpublish(localVideoTrack);
+            //await client.unpublish(localVideoTrack);
             // Publish the screen track.
-            await client.publish(screenTrack);
+            await clientScreenShare.publish(screenTrack);
             // Play the screen track on local container.
             //screenTrack.play(container);
             setIsSharingEnabled(true);
@@ -338,9 +342,9 @@ const AgoraRTCProvider = ({ children }) => {
             // Stop playing the screen track.
             localscreenTrack.stop();
             // Unpublish the screen track.
-            await client.unpublish(localscreenTrack);
+            await clientScreenShare.unpublish(localscreenTrack);
             // Publish the local video track.
-            await client.publish(localVideoTrack);
+            //await client.publish(localVideoTrack);
             // Play the local video on the local container.
             //VideoTrack.play(container);
             // Update the button text.
@@ -352,7 +356,7 @@ const AgoraRTCProvider = ({ children }) => {
         callback(!status);
     }
     useEffect(() => {
-        if (!client) return;
+        if (!client || !clientScreenShare) return;
         setRemoteUsers(client.remoteUsers);
 
         const handleUserPublished = async (user, mediaType) => {
@@ -377,6 +381,34 @@ const AgoraRTCProvider = ({ children }) => {
         };
 
         const handleUserLeft = (user) => {
+            console.log("agora----handleUserLeft user===>", user)
+
+            setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
+        };
+
+        //code for screenshare from new client 
+        const handleUserPublishedTwo = async (user, mediaType) => {
+            await client.subscribe(user, mediaType);
+            console.log("agora----handleUserPublished user===>", user)
+
+            // toggle rerender while state of remoteUsers changed.
+            setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
+        };
+
+        const handleUserUnpublishedTwo = (user) => {
+            console.log("agora----handleUserUnpublished user===>", user)
+
+            setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
+        };
+
+        const handleUserJoinedTwo = (user) => {
+            console.log("agora----handleUserJoined user===>", user)
+            // setUserId(user)
+
+            setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
+        };
+
+        const handleUserLeftTwo = (user) => {
             console.log("agora----handleUserLeft user===>", user)
 
             setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
@@ -416,12 +448,21 @@ const AgoraRTCProvider = ({ children }) => {
 
         client.on("user-published", handleUserPublished);
         client.on("user-unpublished", handleUserUnpublished);
+        clientScreenShare.on("user-published", handleUserPublishedTwo);
+        clientScreenShare.on("user-unpublished", handleUserUnpublishedTwo);
+        clientScreenShare.on("user-joined", handleUserJoinedTwo);
+        clientScreenShare.on("user-left", handleUserLeftTwo);
+
         client.on("user-joined", handleUserJoined);
         client.on("user-left", handleUserLeft);
         client.enableAudioVolumeIndicator();
         client.on("volume-indicator", highlightingaSpeaker);
 
         return () => {
+            clientScreenShare.on("user-published", handleUserPublishedTwo);
+            clientScreenShare.on("user-unpublished", handleUserUnpublishedTwo);
+            clientScreenShare.off("user-joined", handleUserJoinedTwo);
+            clientScreenShare.off("user-left", handleUserLeftTwo);
             client.off("user-published", handleUserPublished);
             client.off("user-unpublished", handleUserUnpublished);
             client.off("user-joined", handleUserJoined);

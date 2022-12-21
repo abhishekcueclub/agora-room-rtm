@@ -35,7 +35,7 @@ import { useAgoraRTM } from "./hooks/AgoraRTMProvider";
 // AgoraRTC.registerExtensions([extension]);
 
 export default function RoomApp() {
-  const [channel, setChannel] = useState("demo_channel");
+  const [channel, setChannel] = useState("demo_channel_a");
   // // eslint-disable-next-line
   // eslint-disable-next-line
   const [token, setToken] = useState("");
@@ -298,7 +298,7 @@ export default function RoomApp() {
             className="btn btn-primary btn-sm"
             disabled={!joinState}
             onClick={() => {
-              handleScreenShare(false);
+              handleScreenShare(isSharingEnabled);
             }}
           >
             {isSharingEnabled ? 'stop screen share' : 'start screen share'}
