@@ -43,6 +43,8 @@ const AgoraRTCProvider = ({ children }) => {
     const [isUserAudience,setIsUserAudience] = useState(true);
     const [isSharingEnabled,setIsSharingEnabled] = useState(false);
     const [localscreenTrack , setLocalScreenTack] = useState(null);
+    const [tok , setTok] = useState('');
+
     // Initialization
     async function getProcessorInstance() {
         if (!processor && localVideoTrack) {
@@ -285,7 +287,7 @@ const AgoraRTCProvider = ({ children }) => {
 
     async function join(channel, token, initRm, username_detail) {
         console.log("Join --- client", client)
-
+        setTok(token);
         if (!client) return;
 
         console.log("Join --- 1")
@@ -321,7 +323,7 @@ const AgoraRTCProvider = ({ children }) => {
 
     async function handleScreenShareClick (status, callback) {
         clientScreenShare.setClientRole("host");
-        const tok = "";
+        //const tok = "";
         const _uid = await clientScreenShare.join(appid, 'demo_channel_a', tok, 'screen');
         if(status == false) {
             // Create a screen track for screen sharing.
