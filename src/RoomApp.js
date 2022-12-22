@@ -17,6 +17,7 @@ import SlideDrawer from "./SlideDrawer/SlideDrawer";
 // import useAgoraChat from "./hooks/useAgoraChat";
 import { useAgoraRTC } from "./hooks/AgoraRTCProvider";
 import { useAgoraRTM } from "./hooks/AgoraRTMProvider";
+import { useAgoraScreenShare } from "./hooks/AgoraRTCScreenShareProvider";
 
 // import Permissions from './Permissions'
 
@@ -86,10 +87,10 @@ export default function RoomApp() {
     updateUsername,
     username,
     isUserAudience,
-    setIsSharingEnabled,
-    isSharingEnabled,
-    localscreenTrack,
-    handleScreenShareClick,
+    // setIsSharingEnabled,
+    // isSharingEnabled,
+    // localscreenTrack,
+    // handleScreenShareClick,
     currentSpeaker,
     setBackgroundBlurring,
     setBackgroundColor,
@@ -97,6 +98,15 @@ export default function RoomApp() {
     remoteUsersSet,
     forceVideo
   } = useAgoraRTC()
+
+  const {
+    handleScreenShareClick,
+                isSharingEnabled,
+                setIsSharingEnabled,
+                localscreenTrack,
+  }=useAgoraScreenShare();
+
+  
 
   //useAgora(client, extension);
 
@@ -151,7 +161,7 @@ export default function RoomApp() {
     setDrawerOpen(!drawerOpen)
   }
   const handleScreenShare = (isSharingEnabled) => {
-    handleScreenShareClick(isSharingEnabled,function(resp){
+    handleScreenShareClick(isSharingEnabled,token,function(resp){
       shareShareAction(resp, function(result,error){
         if(result){
           console.log('screen share sucess ',result)
