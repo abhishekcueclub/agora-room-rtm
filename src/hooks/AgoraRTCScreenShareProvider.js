@@ -8,7 +8,6 @@ import VirtualBackgroundExtension from "agora-extension-virtual-background";
 
 export const AgoraRTCScreenShareContext = React.createContext(null);
 export const appid = "61a0d4c67a4342c49298fdd84f9f0f03";
-export const client = AgoraRTC.createClient({ codec: "h264", mode: "live" });
 export const clientScreenShare = AgoraRTC.createClient({ codec: "h264", mode: "live" });
 
 
@@ -26,10 +25,13 @@ const AgoraRTCScreenShareProvider = ({ children }) => {
     const [remoteUsers, setRemoteUsers] = useState([]);
     const [isSharingEnabled,setIsSharingEnabled] = useState(false);
     const [localscreenTrack , setLocalScreenTrack] = useState(null);
+    const [client, setMainClient] = useState(null);
     //const [tok , setTok] = useState('007eJxTYMhYrRO1pDGML/to8YQvr8U+VjPILRP32SdR8KPin/CdO5MVGMxNDFPNDC2NDJOMLEzSTFKSkpLTUpOSDS3NkpJTjI0tmNcvSW4IZGQ4m9DAysgAgSA+H0NKam5+fHJGYl5eak58IgMDAL6bJA4=');
 
 
-    async function handleScreenShareClick (status,tok, callback) {
+    async function handleScreenShareClick (status,client,tok, callback) {
+        console.log('client 1111111111', client);
+        setMainClient(client);
         clientScreenShare.setClientRole("host");
         //const tok = "";
         
@@ -71,11 +73,14 @@ const AgoraRTCScreenShareProvider = ({ children }) => {
         callback(!status);
     }
     useEffect(() => {
-        if (!clientScreenShare) return;
+        if (!clientScreenShare || !client) return;
+        console.log('client 44444444', client);
 
         //code for screenshare from new client 
         const handleUserPublishedTwo = async (user, mediaType) => {
-            //await client.subscribe(user, mediaType);
+            console.log('client 22222222222', client);
+
+            await client.subscribe(user, mediaType);
             console.log("agora----handleUserPublished user from screenShare===>", user)
 
             // toggle rerender while state of remoteUsers changed.

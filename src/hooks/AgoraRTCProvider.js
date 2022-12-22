@@ -533,7 +533,8 @@ const AgoraRTCProvider = ({ children }) => {
                 remoteUsersSet,
                 setBackgroundImage,
                 forceAudio,
-                forceVideo
+                forceVideo,
+                client
             }}
         >
             {children}

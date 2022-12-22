@@ -96,7 +96,8 @@ export default function RoomApp() {
     setBackgroundColor,
     remoteUsersMap,
     remoteUsersSet,
-    forceVideo
+    forceVideo,
+    client
   } = useAgoraRTC()
 
   const {
@@ -161,7 +162,7 @@ export default function RoomApp() {
     setDrawerOpen(!drawerOpen)
   }
   const handleScreenShare = (isSharingEnabled) => {
-    handleScreenShareClick(isSharingEnabled,token,function(resp){
+    handleScreenShareClick(isSharingEnabled,client,token,function(resp){
       shareShareAction(resp, function(result,error){
         if(result){
           console.log('screen share sucess ',result)
