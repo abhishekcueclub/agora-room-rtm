@@ -18,6 +18,8 @@ import { UserRole } from "./hooks/AgoraConstant";
 // import useAgoraChat from "./hooks/useAgoraChat";
 import { useAgoraRTC } from "./hooks/AgoraRTCProvider";
 import { useAgoraRTM } from "./hooks/AgoraRTMProvider";
+import { useAgoraScreenShare } from "./hooks/AgoraRTCScreenShareProvider";
+import Select from 'react-select'
 
 // import Permissions from './Permissions'
 
@@ -36,14 +38,19 @@ import { useAgoraRTM } from "./hooks/AgoraRTMProvider";
 // AgoraRTC.registerExtensions([extension]);
 
 export default function RoomApp() {
-  const [channel, setChannel] = useState("demo_channel");
+  const [channel, setChannel] = useState("demo_channel_a");
   // // eslint-disable-next-line
   // eslint-disable-next-line
   const [token, setToken] = useState("007eJxTYFid6SO2yiftSlLvr+oVS2re7XjDl2/KWfh72/o5fa/2rw1SYDA3MUw1M7Q0MkwysjBJM0lJSkpOS01KNrQ0S0pOMTa2mLV5UXJDICNDhPV2FkYGCATxeRhSUnPz45MzEvPyUnMYGAAmYSVU");
 
   // let channelName = channel;
   // eslint-disable-next-line
-
+  const options = [
+    { value: UserRole.LISTENER, label: UserRole.LISTENER },
+    { value: UserRole.SPEAKER, label: UserRole.SPEAKER },
+    { value: UserRole.MODERATOR, label: UserRole.MODERATOR }
+  ]
+  
 
   // eslint-disable-next-line
   const {
@@ -106,17 +113,27 @@ export default function RoomApp() {
     updateUsername,
     username,
     isUserAudience,
-    setIsSharingEnabled,
-    isSharingEnabled,
-    localscreenTrack,
-    handleScreenShareClick,
+    // setIsSharingEnabled,
+    // isSharingEnabled,
+    // localscreenTrack,
+    // handleScreenShareClick,
     currentSpeaker,
     setBackgroundBlurring,
     setBackgroundColor,
     remoteUsersMap,
     remoteUsersSet,
     forceVideo,
+    client
   } = useAgoraRTC()
+
+  const {
+    handleScreenShareClick,
+                isSharingEnabled,
+                setIsSharingEnabled,
+                localscreenTrack,
+  }=useAgoraScreenShare();
+
+  
 
   //useAgora(client, extension);
 
@@ -195,7 +212,7 @@ export default function RoomApp() {
     setDrawerOpen(!drawerOpen)
   }
   const handleScreenShare = (isSharingEnabled) => {
-    handleScreenShareClick(isSharingEnabled,function(resp){
+    handleScreenShareClick(isSharingEnabled,client,token,function(resp){
       shareShareAction(resp, function(result,error){
         if(result){
           console.log('screen share sucess ',result)
@@ -435,7 +452,7 @@ export default function RoomApp() {
             className="btn btn-primary btn-sm"
             disabled={!joinState}
             onClick={() => {
-              handleScreenShare(false);
+              handleScreenShare(isSharingEnabled);
             }}
           >
             {isSharingEnabled ? 'stop screen share' : 'start screen share'}
@@ -529,6 +546,10 @@ export default function RoomApp() {
                 }}
               />
             </label>
+            <div style={{display:'flex',justifyContent:'center'}}>
+            <Select options={options} />
+            </div>
+            
 
             <br />
             <br />

@@ -6,6 +6,7 @@ import AlertTemplate from 'react-alert-template-basic'
 import CueHeader from './assets/public/CueHeader'
 import React from 'react'
 import RoomApp from './RoomApp'
+import { AgoraRTCScreenShareProvider } from './hooks/AgoraRTCScreenShareProvider'
 
 // optional configuration
 const options = {
@@ -23,8 +24,10 @@ export default function App() {
 
                 <AgoraRTCProvider>
                     <AgoraRTMProvider>
+                        <AgoraRTCScreenShareProvider>
                         <CueHeader />
                         <RoomApp />
+                        </AgoraRTCScreenShareProvider>
                     </AgoraRTMProvider>
                 </AgoraRTCProvider>
             </AlertProvider>

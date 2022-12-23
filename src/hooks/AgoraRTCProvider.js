@@ -40,8 +40,9 @@ const AgoraRTCProvider = ({ children }) => {
     // eslint-disable-next-line
     const [virtualBackgroundEnabled, setVirtualBackgroundEnabled] = useState(false)
     const [isUserAudience,setIsUserAudience] = useState(true);
-    const [isSharingEnabled,setIsSharingEnabled] = useState(false);
     const [localscreenTrack , setLocalScreenTack] = useState(null);
+    const [tok , setTok] = useState('');
+
     // Initialization
     async function getProcessorInstance() {
         if (!processor && localVideoTrack) {
@@ -284,7 +285,7 @@ const AgoraRTCProvider = ({ children }) => {
 
     async function join(channel, token, initRm, username_detail) {
         console.log("Join --- client", client)
-
+        setTok(token);
         if (!client) return;
 
         console.log("Join --- 1")
@@ -329,39 +330,6 @@ const AgoraRTCProvider = ({ children }) => {
         await client.leave();
     }
 
-    async function handleScreenShareClick (status, callback) {
-        if(status == false) {
-            // Create a screen track for screen sharing.
-            //[ILocalVideoTrack, ILocalAudioTrack] | ILocalVideoTrack>
-            const screenTrack  = await AgoraRTC.createScreenVideoTrack();
-            console.log('screenTrack', screenTrack)
-            setLocalScreenTack(screenTrack);
-            // Stop playing the local video track.
-            localVideoTrack.stop();
-            // Unpublish the local video track.
-            await client.unpublish(localVideoTrack);
-            // Publish the screen track.
-            await client.publish(screenTrack);
-            // Play the screen track on local container.
-            //screenTrack.play(container);
-            setIsSharingEnabled(true);
-        } else {
-            // Stop playing the screen track.
-            localscreenTrack.stop();
-            // Unpublish the screen track.
-            await client.unpublish(localscreenTrack);
-            // Publish the local video track.
-            await client.publish(localVideoTrack);
-            // Play the local video on the local container.
-            //VideoTrack.play(container);
-            // Update the button text.
-            //document.getElementById(`inItScreen`).innerHTML = "Share Screen";
-            // Update the screen sharing state.
-            //isSharingEnabled = false;
-            setIsSharingEnabled(false);
-        }
-        callback(!status);
-    }
     useEffect(() => {
         if (!client) return;
         setRemoteUsers(client.remoteUsers);
@@ -392,6 +360,7 @@ const AgoraRTCProvider = ({ children }) => {
 
             setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
         };
+
 
         const highlightingaSpeaker = (user) => {
             console.log("agora----highlightingaSpeaker user===>", user)
@@ -427,6 +396,7 @@ const AgoraRTCProvider = ({ children }) => {
 
         client.on("user-published", handleUserPublished);
         client.on("user-unpublished", handleUserUnpublished);
+
         client.on("user-joined", handleUserJoined);
         client.on("user-left", handleUserLeft);
         client.enableAudioVolumeIndicator();
@@ -481,9 +451,6 @@ const AgoraRTCProvider = ({ children }) => {
                 joinState,
                 leave,
                 join,
-                handleScreenShareClick,
-                isSharingEnabled,
-                setIsSharingEnabled,
                 remoteUsers,
                 muteVideo,
                 muteAudio,
@@ -501,7 +468,8 @@ const AgoraRTCProvider = ({ children }) => {
                 remoteUsersSet,
                 setBackgroundImage,
                 forceAudio,
-                forceVideo
+                forceVideo,
+                client
             }}
         >
             {children}
