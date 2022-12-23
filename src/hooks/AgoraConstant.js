@@ -19,6 +19,8 @@ const AgoraRTMObject = data => {
     // cuelog('DataEventObject==>>', JSON.stringify(data))
     return {
         peerId: safeUnwrap(data, 'peerId', null), //ModeratorToOne,OneToModerator else null
+        text: safeUnwrap(data, 'text', null),
+        status: safeUnwrap(data, 'status', null),
         senderId: safeUnwrap(data, 'senderId', null),
         action: safeUnwrap(data, 'action', null), //OneToModerator, ModeratorToOne,OneToMany,OneToMany
         agoraRTMype: safeUnwrap(data, 'agoraRTMype', null), //AgoraRTMType
@@ -31,14 +33,17 @@ export const AgoraRTMType = {
     ONE_TO_MANY: 'ONE_TO_MANY',
 };
 
-
+export const UserRole = {
+    SPEAKER: 'SPEAKER',
+    LISTENER: 'LISTENER', //Audience
+    MODERATOR: 'MODERATOR', //Host
+};
 export const safeUnwrap = (data, key, defaultValue) => {
     return get(data, key, defaultValue);
 };
 
 // Aud -> mod &&  1:1
 export const OneToModerator = {
-    HAND_RAISED: 'HAND_RAISED',
     INVITED_ON_STAGE_ACCEPT: 'INVITE_ON_STAGE_ACCEPT',
     INVITED_ON_STAGE_REJECT: 'INVITE_ON_STAGE_REJECT',
 };
@@ -56,11 +61,16 @@ export const ModeratorToOne = {
 
 // mod  to all || all to all [reaction]
 export const OneToMany = {
+    DISABLE_HAND_RAISED: 'DISABLE_HAND_RAISED',
+    ENABLE_HAND_RAISED: 'ENABLE_HAND_RAISED',
+    HAND_RAISED: 'HAND_RAISED',
     TEXT: 'TEXT',
     SPOTLIGHTED_USER: 'SPOTLIGHTED_USER',
     REMOVED_SPOTLIGHTED_USER: 'REMOVED_SPOTLIGHTED_USER',
     MAKE_ROOM_PUBLIC: 'MAKE_ROOM_PUBLIC',
     MAKE_ROOM_PRIVATE: 'MAKE_ROOM_PRIVATE',
+    CONVERT_VIDEO_ROOM: 'CONVERT_VIDEO_ROOM',
+    UPDATE_ROOM_TYPE: 'UPDATE_ROOM_TYPE',
     RECORDING_STARTED: 'RECORDING_STARTED',
     RECORDING_STOPED: 'RECORDING_STOPED',
     REACTION_SEND: 'REACTION_SEND', // all to all
@@ -83,4 +93,14 @@ export const AgoraChannelProfile = {
 export const AgoraUserRole = {
     BROADCASTER: 'BROADCASTER',
     AUDIENCE: 'AUDIENCE',
+};
+export const RoomType = {
+    PUBLIC: 'PUBLIC',
+    PRIVATE: 'PRIVATE',
+    RESTRICTED: 'RESTRICTED',
+};
+
+export const RoomMediaType = {
+    AUDIO: 'AUDIO',
+    VIDEO: 'VIDEO',
 };

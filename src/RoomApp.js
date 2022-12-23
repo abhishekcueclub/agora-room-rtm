@@ -11,6 +11,7 @@ import { Launcher } from "react-chat-window"
 // import MainPage from "./SlideDrawer/MainPage";
 import MediaPlayer from "./components/MediaPlayer";
 import SlideDrawer from "./SlideDrawer/SlideDrawer";
+import { UserRole } from "./hooks/AgoraConstant";
 // import SlideDrawerGame from "./SlideDrawer/SlideDrawerGame";
 // import VirtualBackgroundExtension from "agora-extension-virtual-background";
 // import useAgora from "./hooks/useAgora";
@@ -38,7 +39,7 @@ export default function RoomApp() {
   const [channel, setChannel] = useState("demo_channel");
   // // eslint-disable-next-line
   // eslint-disable-next-line
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState("007eJxTYFid6SO2yiftSlLvr+oVS2re7XjDl2/KWfh72/o5fa/2rw1SYDA3MUw1M7Q0MkwysjBJM0lJSkpOS01KNrQ0S0pOMTa2mLV5UXJDICNDhPV2FkYGCATxeRhSUnPz45MzEvPyUnMYGAAmYSVU");
 
   // let channelName = channel;
   // eslint-disable-next-line
@@ -66,8 +67,27 @@ export default function RoomApp() {
     pinUser,
     pinUserAction,
     forceEnableVideo,
+    // eslint-disable-next-line
+    isShareShareStatus,
+    // eslint-disable-next-line
     shareShareAction,
-    isShareShareStatus
+    enableHandRaised,
+    enableHandRaisedAction,
+    raiseHand,
+    isHandRaised,
+    handRaisedUser,
+    acceptedRejectHandRaised,
+    userRole,
+    inviteOnStageAction,
+    invitedOnStage,
+    acceptRejectInviteOnStageAction,
+    updateRoomTypeAction,
+    roomType,
+    updateRoomMediaTypeAction,
+    roomMediaType,
+
+    forceRemoveUserAction,
+    forceRemoveUser
   } = useAgoraRTM();
 
   const [poketoUser, setPokeToUser] = useState("");
@@ -95,7 +115,7 @@ export default function RoomApp() {
     setBackgroundColor,
     remoteUsersMap,
     remoteUsersSet,
-    forceVideo
+    forceVideo,
   } = useAgoraRTC()
 
   //useAgora(client, extension);
@@ -106,6 +126,30 @@ export default function RoomApp() {
   }, [isShareShareStatus])
 
   useEffect(() => {
+    // const min = 1000;
+    // const max = 9999;
+    // const rand = Math.round(min + Math.random() * (max - min));
+    // updateUsername("cue" + rand)
+    if (forceRemoveUser) {
+      leave()
+    }
+    // eslint-disable-next-line
+  }, [forceRemoveUser])
+
+
+  useEffect(() => {
+    const min = 1000;
+    const max = 9999;
+    const rand = Math.round(min + Math.random() * (max - min));
+    updateUsername("cue" + rand)
+    // eslint-disable-next-line
+  }, [])
+
+
+  useEffect(() => {
+
+
+
 
     if (forceEnableVideo && !muteVideoState) {
       forceVideo(true)
@@ -207,7 +251,87 @@ export default function RoomApp() {
   return (
     <div>
       {
-        joinState ? <div> <h3>SpotlightedUser Speaking: {spotlightedUser}</h3>
+        joinState ? <div>
+
+          {
+            invitedOnStage?.length > 0 ? <div>
+              <h3>invited On Stage : {invitedOnStage}</h3>
+
+              <span>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => {
+                    // this.props.inviteOnStageAction(user.uid, UserRole.MODERATOR)
+                    acceptRejectInviteOnStageAction(username, invitedOnStage, true)
+
+                  }}
+                >
+                  accept invite
+                </button>
+              </span>
+
+
+
+              <span>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => {
+                    acceptRejectInviteOnStageAction(username, invitedOnStage, false)
+
+                    // this.props.inviteOnStageAction(user.uid, UserRole.LISTENER)
+                  }}
+                >
+                  reject invite
+                </button>
+              </span>
+
+            </div> : null
+          }
+
+
+          {/* <h3>SpotlightedUser Speaking: {spotlightedUser}</h3>
+          <h3>{invitedOnStage?.length > 0 ? `invited On Stage to be ${invitedOnStage}` : ""}</h3>
+
+ */}
+
+
+          <h3>{userRole === UserRole.SPEAKER ? "Chote aaj se tu bhi Avenger" : "You are just hero"}</h3>
+
+          <h3>{enableHandRaised ? "Hand Raised is enabled" : "Hand Raised is disabled"}</h3>
+
+          {enableHandRaised ? <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => {
+              raiseHand()
+            }}
+          >
+            {!isHandRaised ? "Hand's up" : "hand's down"}
+          </button> : null}
+
+
+          <h3>{handRaisedUser.length > 0 ? "List of user raised hand" : (enableHandRaised ? "No One Raised hand" : null)}</h3>
+          {handRaisedUser.map((user) => {
+            return (<div>{user} {" "}<button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => {
+                acceptedRejectHandRaised(user, true)
+              }}
+            >
+              Accepted
+            </button> {" "}<button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => {
+                acceptedRejectHandRaised(user, false)
+              }}
+            >
+                Rejected
+              </button></div>)
+          })}
           <br />
           <h3>===============================================</h3>
           <br />
@@ -291,6 +415,19 @@ export default function RoomApp() {
         >
             Leave
           </button>
+
+          {"        "}
+
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => {
+              enableHandRaisedAction();
+            }}
+          >
+            {enableHandRaised ? "Disable Hand Raised" : "Enable Hand Raised"}
+          </button>
+
           {"        "}
           <button
             id="leave"
@@ -331,6 +468,12 @@ export default function RoomApp() {
           : null
       }
       < SlideDrawer
+        forceRemoveUserAction={forceRemoveUserAction}
+        updateRoomMediaTypeAction={updateRoomMediaTypeAction}
+        roomMediaType={roomMediaType}
+        updateRoomTypeAction={updateRoomTypeAction}
+        roomType={roomType}
+        inviteOnStageAction={inviteOnStageAction}
         mutePeerAudio={mutePeerAudio}
         mutePeerVideo={mutePeerVideo}
         show={drawerOpen}
