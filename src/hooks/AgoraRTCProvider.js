@@ -5,6 +5,7 @@ import AgoraRTC, {
 import React, { useContext, useEffect, useState } from "react";
 
 import VirtualBackgroundExtension from "agora-extension-virtual-background";
+import { UserRole } from "./AgoraConstant";
 
 export const AgoraRTCContext = React.createContext(null);
 export const appid = "61a0d4c67a4342c49298fdd84f9f0f03";
@@ -42,7 +43,7 @@ const AgoraRTCProvider = ({ children }) => {
     const [isUserAudience,setIsUserAudience] = useState(true);
     const [localscreenTrack , setLocalScreenTack] = useState(null);
     const [tok , setTok] = useState('');
-
+    const [role, setRole] = useState(UserRole.LISTENER);
     // Initialization
     async function getProcessorInstance() {
         if (!processor && localVideoTrack) {
@@ -263,6 +264,11 @@ const AgoraRTCProvider = ({ children }) => {
         setIsUserAudience(name && name.startsWith('cue') ? false : true)
         setUsername(name)
     }
+    async function updateRole(role){
+        console.log('kkkkkk',role)
+        setRole(role);
+        setIsUserAudience(role==UserRole.MODERATOR || role == UserRole.SPEAKER ? false:true)
+      }
     async function createLocalTracks() {
         const [
             microphoneTrack,
@@ -461,6 +467,8 @@ const AgoraRTCProvider = ({ children }) => {
                 isUserAudience,
                 localscreenTrack,
                 updateUsername,
+                role,
+                updateRole,
                 currentSpeaker,
                 setBackgroundBlurring,
                 setBackgroundColor,

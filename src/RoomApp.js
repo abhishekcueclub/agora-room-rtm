@@ -50,7 +50,7 @@ export default function RoomApp() {
     { value: UserRole.SPEAKER, label: UserRole.SPEAKER },
     { value: UserRole.MODERATOR, label: UserRole.MODERATOR }
   ]
-  
+
 
   // eslint-disable-next-line
   const {
@@ -123,17 +123,19 @@ export default function RoomApp() {
     remoteUsersMap,
     remoteUsersSet,
     forceVideo,
-    client
+    client,
+    role,
+    updateRole
   } = useAgoraRTC()
 
   const {
     handleScreenShareClick,
-                isSharingEnabled,
-                setIsSharingEnabled,
-                localscreenTrack,
-  }=useAgoraScreenShare();
+    isSharingEnabled,
+    setIsSharingEnabled,
+    localscreenTrack,
+  } = useAgoraScreenShare();
 
-  
+
 
   //useAgora(client, extension);
 
@@ -212,12 +214,12 @@ export default function RoomApp() {
     setDrawerOpen(!drawerOpen)
   }
   const handleScreenShare = (isSharingEnabled) => {
-    handleScreenShareClick(isSharingEnabled,client,token,function(resp){
-      shareShareAction(resp, function(result,error){
-        if(result){
-          console.log('screen share sucess ',result)
-        }else{
-          console.log('screen share failed ',error)
+    handleScreenShareClick(isSharingEnabled, client, token, function (resp) {
+      shareShareAction(resp, function (result, error) {
+        if (result) {
+          console.log('screen share sucess ', result)
+        } else {
+          console.log('screen share failed ', error)
         }
       })
     });
@@ -271,10 +273,14 @@ export default function RoomApp() {
         joinState ? <div>
 
           {
-            invitedOnStage?.length > 0 ? <div>
-              <h3>invited On Stage : {invitedOnStage}</h3>
-
-              <span>
+            invitedOnStage?.length > 0 ? 
+            <div>
+              
+              {
+            role === UserRole.MODERATOR && (
+              <div>
+                <h3>invited On Stage : {invitedOnStage}</h3>
+                 <span>
                 <button
                   type="button"
                   className="btn btn-primary btn-sm"
@@ -289,7 +295,7 @@ export default function RoomApp() {
               </span>
 
 
-
+              
               <span>
                 <button
                   type="button"
@@ -303,6 +309,9 @@ export default function RoomApp() {
                   reject invite
                 </button>
               </span>
+              </div>
+            )}
+             
 
             </div> : null
           }
@@ -328,27 +337,32 @@ export default function RoomApp() {
             {!isHandRaised ? "Hand's up" : "hand's down"}
           </button> : null}
 
+          {
+            role === UserRole.MODERATOR && (
+              <div>
+                <h3>{handRaisedUser.length > 0 ? "List of user raised hand" : (enableHandRaised ? "No One Raised hand" : null)}</h3>
+                {handRaisedUser.map((user) => {
+                  return (<div>{user} {" "}<button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={() => {
+                      acceptedRejectHandRaised(user, true)
+                    }}
+                  >
+                    Accepted
+                  </button> {" "}<button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={() => {
+                      acceptedRejectHandRaised(user, false)
+                    }}
+                  >
+                      Rejected
+                    </button></div>)
+                })}
+              </div>
+            )}
 
-          <h3>{handRaisedUser.length > 0 ? "List of user raised hand" : (enableHandRaised ? "No One Raised hand" : null)}</h3>
-          {handRaisedUser.map((user) => {
-            return (<div>{user} {" "}<button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => {
-                acceptedRejectHandRaised(user, true)
-              }}
-            >
-              Accepted
-            </button> {" "}<button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => {
-                acceptedRejectHandRaised(user, false)
-              }}
-            >
-                Rejected
-              </button></div>)
-          })}
           <br />
           <h3>===============================================</h3>
           <br />
@@ -434,29 +448,34 @@ export default function RoomApp() {
           </button>
 
           {"        "}
+          {
+            role === UserRole.MODERATOR || role === UserRole.SPEAKER && (
+              <div>
+                <button
+                  id="leave"
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  disabled={!joinState}
+                  onClick={() => {
+                    handleScreenShare(isSharingEnabled);
+                  }}
+                >
+                  {isSharingEnabled ? 'stop screen share' : 'start screen share'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => {
+                    enableHandRaisedAction();
+                  }}
+                >
+                  {enableHandRaised ? "Disable Hand Raised" : "Enable Hand Raised"}
+                </button>
+              </div>
 
-          <button
-            type="button"
-            className="btn btn-primary btn-sm"
-            onClick={() => {
-              enableHandRaisedAction();
-            }}
-          >
-            {enableHandRaised ? "Disable Hand Raised" : "Enable Hand Raised"}
-          </button>
+            )}
 
-          {"        "}
-          <button
-            id="leave"
-            type="button"
-            className="btn btn-primary btn-sm"
-            disabled={!joinState}
-            onClick={() => {
-              handleScreenShare(isSharingEnabled);
-            }}
-          >
-            {isSharingEnabled ? 'stop screen share' : 'start screen share'}
-          </button>
+
           {"        "}
 
           <button
@@ -501,6 +520,7 @@ export default function RoomApp() {
 
         pinUser={pinUser}
         pinUserAction={pinUserAction}
+        role={role}
       />
       {/* < SlideDrawerGame show={drawerGameOpen} drawerToggleClickHandler={drawerGameToggleClickHandler} joinState={joinState} username={username} /> */}
       {drawerOpen ? <Backdrop /> : null}
@@ -546,10 +566,13 @@ export default function RoomApp() {
                 }}
               />
             </label>
-            <div style={{display:'flex',justifyContent:'center'}}>
-            <Select options={options} />
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <Select defaultValue={role}
+                onChange={(item) => updateRole(item.value)}
+                options={options}
+              />
             </div>
-            
+
 
             <br />
             <br />
@@ -585,8 +608,8 @@ export default function RoomApp() {
                   className="btn btn-primary btn-sm"
                   disabled={joinState}
                   onClick={() => {
-                    console.log("Join --- channel " + channel)
-                    join(channel, token, initRm, username);
+                    //console.log("Join --- channel ", role)
+                    join(channel, token, initRm, username, role);
                   }}
                 >
                   Join
