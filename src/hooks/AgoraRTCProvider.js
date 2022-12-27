@@ -5,10 +5,11 @@ import AgoraRTC, {
 import React, { useContext, useEffect, useState } from "react";
 
 import VirtualBackgroundExtension from "agora-extension-virtual-background";
+import { UserRole } from "./AgoraConstant";
 
 export const AgoraRTCContext = React.createContext(null);
 export const appid = "61a0d4c67a4342c49298fdd84f9f0f03";
-export const client = AgoraRTC.createClient({ codec: "h264", mode: "rtc" });
+export const client = AgoraRTC.createClient({ codec: "h264", mode: "live" });
 
 
 // Register the extension
@@ -39,8 +40,10 @@ const AgoraRTCProvider = ({ children }) => {
     const [processor, setProcessor] = useState(null)
     // eslint-disable-next-line
     const [virtualBackgroundEnabled, setVirtualBackgroundEnabled] = useState(false)
-
-
+    const [isUserAudience,setIsUserAudience] = useState(true);
+    const [localscreenTrack , setLocalScreenTack] = useState(null);
+    const [tok , setTok] = useState('');
+    const [role, setRole] = useState(UserRole.LISTENER);
     // Initialization
     async function getProcessorInstance() {
         if (!processor && localVideoTrack) {
@@ -258,8 +261,14 @@ const AgoraRTCProvider = ({ children }) => {
 
 
     async function updateUsername(name) {
+        setIsUserAudience(name && name.startsWith('cue') ? false : true)
         setUsername(name)
     }
+    async function updateRole(role){
+        console.log('kkkkkk',role)
+        setRole(role);
+        setIsUserAudience(role==UserRole.MODERATOR || role == UserRole.SPEAKER ? false:true)
+      }
     async function createLocalTracks() {
         const [
             microphoneTrack,
@@ -282,14 +291,16 @@ const AgoraRTCProvider = ({ children }) => {
 
     async function join(channel, token, initRm, username_detail) {
         console.log("Join --- client", client)
-
+        setTok(token);
         if (!client) return;
 
         console.log("Join --- 1")
         const [microphoneTrack, cameraTrack] = await createLocalTracks();
 
         await client.join(appid, channel, token, username_detail);
-        //** camera check */
+        await client.setClientRole(isUserAudience ? 'audience':'host');
+        if(!isUserAudience){
+            //** camera check */
         var devices = await AgoraRTC.getDevices();
         var cameras = devices.filter(device => device.kind === 'videoinput');
         console.log("cameras===>", cameras)
@@ -301,10 +312,7 @@ const AgoraRTCProvider = ({ children }) => {
             await client.publish([microphoneTrack]);
             // console.warn("No camera only audio!!!");
         }
-
-
-
-        // await client.publish([microphoneTrack, cameraTrack]);
+        }
         microphoneTrack.setEnabled(false)
         cameraTrack.setEnabled(false)
         setJoinState(true);
@@ -359,6 +367,7 @@ const AgoraRTCProvider = ({ children }) => {
             setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
         };
 
+
         const highlightingaSpeaker = (user) => {
             console.log("agora----highlightingaSpeaker user===>", user)
             console.log("agora----highlightingaSpeaker remoteUsers===>", remoteUsers)
@@ -393,6 +402,7 @@ const AgoraRTCProvider = ({ children }) => {
 
         client.on("user-published", handleUserPublished);
         client.on("user-unpublished", handleUserUnpublished);
+
         client.on("user-joined", handleUserJoined);
         client.on("user-left", handleUserLeft);
         client.enableAudioVolumeIndicator();
@@ -464,7 +474,11 @@ const AgoraRTCProvider = ({ children }) => {
                 muteAudioState,
                 // userId,
                 username,
+                isUserAudience,
+                localscreenTrack,
                 updateUsername,
+                role,
+                updateRole,
                 currentSpeaker,
                 setBackgroundBlurring,
                 setBackgroundColor,
@@ -472,7 +486,8 @@ const AgoraRTCProvider = ({ children }) => {
                 remoteUsersSet,
                 setBackgroundImage,
                 forceAudio,
-                forceVideo
+                forceVideo,
+                client
             }}
         >
             {children}

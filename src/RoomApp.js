@@ -10,6 +10,7 @@ import Backdrop from "./SlideDrawer/Backdrop";
 import { Launcher } from "react-chat-window"
 // import MainPage from "./SlideDrawer/MainPage";
 import MediaPlayer from "./components/MediaPlayer";
+import Select from 'react-select'
 import SlideDrawer from "./SlideDrawer/SlideDrawer";
 import { UserRole } from "./hooks/AgoraConstant";
 // import SlideDrawerGame from "./SlideDrawer/SlideDrawerGame";
@@ -18,6 +19,7 @@ import { UserRole } from "./hooks/AgoraConstant";
 // import useAgoraChat from "./hooks/useAgoraChat";
 import { useAgoraRTC } from "./hooks/AgoraRTCProvider";
 import { useAgoraRTM } from "./hooks/AgoraRTMProvider";
+import { useAgoraScreenShare } from "./hooks/AgoraRTCScreenShareProvider";
 
 // import Permissions from './Permissions'
 
@@ -39,10 +41,15 @@ export default function RoomApp() {
   const [channel, setChannel] = useState("demo_channel");
   // // eslint-disable-next-line
   // eslint-disable-next-line
-  const [token, setToken] = useState("007eJxTYJCZf5O/JPn5yaVLVt8Nv3nAfCJD3iTFP1ppPfeFH4V/PyuqwGBuYphqZmhpZJhkZGGSZpKSlJSclpqUbGhplpScYmxsEVO2NLkhkJGhbd1BVkYGCATx+RlSUnPz45MzEvPyUnPiE5MYGABgziXb");
+  const [token, setToken] = useState("007eJxTYDiwoPb6HYPzvOfqJ/3+tNDFfNtc+4s+8u5ZsjeD0zZ/nXJEgcHcxDDVzNDSyDDJyMIkzSQlKSk5LTUp2dDSLCk5xdjYQmbqquSGQEYGtXYhVkYGCATxeRhSUnPz45MzEvPyUnMYGAARCSQm");
 
   // let channelName = channel;
   // eslint-disable-next-line
+  const options = [
+    { value: UserRole.LISTENER, label: UserRole.LISTENER },
+    { value: UserRole.SPEAKER, label: UserRole.SPEAKER },
+    { value: UserRole.MODERATOR, label: UserRole.MODERATOR }
+  ]
 
 
   // eslint-disable-next-line
@@ -107,17 +114,37 @@ export default function RoomApp() {
     muteAudioState,
     updateUsername,
     username,
+    isUserAudience,
+    // setIsSharingEnabled,
+    // isSharingEnabled,
+    // localscreenTrack,
+    // handleScreenShareClick,
     currentSpeaker,
     setBackgroundBlurring,
     setBackgroundColor,
     remoteUsersMap,
     remoteUsersSet,
     forceVideo,
+    client,
+    role,
+    updateRole
   } = useAgoraRTC()
+
+  const {
+    handleScreenShareClick,
+    isSharingEnabled,
+    setIsSharingEnabled,
+    localscreenTrack,
+  } = useAgoraScreenShare();
+
+
 
   //useAgora(client, extension);
 
 
+  useEffect(() => {
+    setIsSharingEnabled(isShareShareStatus)
+  }, [isShareShareStatus])
 
   useEffect(() => {
     // const min = 1000;
@@ -188,8 +215,17 @@ export default function RoomApp() {
   const drawerToggleClickHandler = () => {
     setDrawerOpen(!drawerOpen)
   }
-
-
+  const handleScreenShare = (isSharingEnabled) => {
+    handleScreenShareClick(isSharingEnabled, client, token, function (resp) {
+      shareShareAction(resp, function (result, error) {
+        if (result) {
+          console.log('screen share sucess ', result)
+        } else {
+          console.log('screen share failed ', error)
+        }
+      })
+    });
+  }
   // eslint-disable-next-line
   const drawerGameToggleClickHandler = () => {
     setDrawerGameOpen(!drawerGameOpen)
@@ -239,40 +275,47 @@ export default function RoomApp() {
         joinState ? <div>
 
           {
-            invitedOnStage?.length > 0 ? <div>
-              <h3>invited On Stage : {invitedOnStage}</h3>
+            invitedOnStage?.length > 0 ?
+              <div>
 
-              <span>
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={() => {
-                    // this.props.inviteOnStageAction(user.uid, UserRole.MODERATOR)
-                    acceptRejectInviteOnStageAction(username, invitedOnStage, true)
+                {
+                  role === UserRole.MODERATOR && (
+                    <div>
+                      <h3>invited On Stage : {invitedOnStage}</h3>
+                      <span>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          onClick={() => {
+                            // this.props.inviteOnStageAction(user.uid, UserRole.MODERATOR)
+                            acceptRejectInviteOnStageAction(username, invitedOnStage, true)
 
-                  }}
-                >
-                  accept invite
-                </button>
-              </span>
+                          }}
+                        >
+                          accept invite
+                        </button>
+                      </span>
 
 
 
-              <span>
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={() => {
-                    acceptRejectInviteOnStageAction(username, invitedOnStage, false)
+                      <span>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          onClick={() => {
+                            acceptRejectInviteOnStageAction(username, invitedOnStage, false)
 
-                    // this.props.inviteOnStageAction(user.uid, UserRole.LISTENER)
-                  }}
-                >
-                  reject invite
-                </button>
-              </span>
+                            // this.props.inviteOnStageAction(user.uid, UserRole.LISTENER)
+                          }}
+                        >
+                          reject invite
+                        </button>
+                      </span>
+                    </div>
+                  )}
 
-            </div> : null
+
+              </div> : null
           }
 
 
@@ -296,55 +339,80 @@ export default function RoomApp() {
             {!isHandRaised ? "Hand's up" : "hand's down"}
           </button> : null}
 
+          {
+            role === UserRole.MODERATOR && (
+              <div>
+                <h3>{handRaisedUser.length > 0 ? "List of user raised hand" : (enableHandRaised ? "No One Raised hand" : null)}</h3>
+                {handRaisedUser.map((user) => {
+                  return (<div>{user} {" "}<button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={() => {
+                      acceptedRejectHandRaised(user, true)
+                    }}
+                  >
+                    Accepted
+                  </button> {" "}<button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={() => {
+                      acceptedRejectHandRaised(user, false)
+                    }}
+                  >
+                      Rejected
+                    </button></div>)
+                })}
+              </div>
+            )}
 
-          <h3>{handRaisedUser.length > 0 ? "List of user raised hand" : (enableHandRaised ? "No One Raised hand" : null)}</h3>
-          {handRaisedUser.map((user) => {
-            return (<div>{user} {" "}<button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => {
-                acceptedRejectHandRaised(user, true)
-              }}
-            >
-              Accepted
-            </button> {" "}<button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => {
-                acceptedRejectHandRaised(user, false)
-              }}
-            >
-                Rejected
-              </button></div>)
-          })}
           <br />
           <h3>===============================================</h3>
           <br />
 
           {
-            spotlightedUserDetails !== null ? <> <div className="remote-player-wrapper" key={spotlightedUser} >
-              <MediaPlayer
-                isSelf={false}
-                videoTrack={spotlightedUserDetails?.videoTrack}
-                audioTrack={spotlightedUserDetails?.audioTrack}
-                username={spotlightedUserDetails?.uid}
-              ></MediaPlayer>
-              <label>{spotlightedUserDetails?.uid} </label> {" || "}
-              <label> {spotlightedUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
-              {" || "}
-              <label> {spotlightedUserDetails?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
-            </div> </> : pinUserDetails !== null ? <> <div className="remote-player-wrapper" key={pinUser} >
-              <MediaPlayer
-                isSelf={false}
-                videoTrack={pinUserDetails?.videoTrack}
-                audioTrack={pinUserDetails?.audioTrack}
-                username={pinUserDetails?.uid}
-              ></MediaPlayer>
-              <label>{pinUserDetails?.uid} </label> {" || "}
-              <label> {pinUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
-              {" || "}
-              <label> {pinUserDetails?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
-            </div> </> : null
+            spotlightedUserDetails !== null ?
+              <>
+                <div className="remote-player-wrapper" key={spotlightedUser} >
+                  <MediaPlayer
+                    isSelf={false}
+                    videoTrack={spotlightedUserDetails?.videoTrack}
+                    audioTrack={spotlightedUserDetails?.audioTrack}
+                    username={spotlightedUserDetails?.uid}
+                  ></MediaPlayer>
+                  <label>{spotlightedUserDetails?.uid} </label> {" || "}
+                  <label> {spotlightedUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
+                  {" || "}
+                  <label> {spotlightedUserDetails?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
+                </div>
+              </> :
+              pinUserDetails !== null ?
+                <>
+                  <div className="remote-player-wrapper" key={pinUser} >
+                    <MediaPlayer
+                      isSelf={false}
+                      videoTrack={pinUserDetails?.videoTrack}
+                      audioTrack={pinUserDetails?.audioTrack}
+                      username={pinUserDetails?.uid}
+                    />
+                    <label>{pinUserDetails?.uid} </label> {" || "}
+                    <label> {pinUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
+                    {" || "}
+                    <label> {pinUserDetails?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
+                  </div>
+                </> : isSharingEnabled ? <>
+                  <div className="remote-player-wrapper" key={pinUser} >
+                    <MediaPlayer
+                      isSelf={false}
+                      videoTrack={localscreenTrack}
+                      //audioTrack={pinUserDetails?.audioTrack}
+                      username={'screen share'}
+                    />
+                    <label>{pinUserDetails?.uid} </label> {" || "}
+                    <label> {pinUserDetails?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
+                    {" || "}
+                    <label> {pinUserDetails?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
+                  </div>
+                </> : null
           }
 
 
@@ -382,16 +450,33 @@ export default function RoomApp() {
           </button>
 
           {"        "}
+          {
+            role === UserRole.MODERATOR || role === UserRole.SPEAKER && (
+              <div>
+                <button
+                  id="leave"
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  disabled={!joinState}
+                  onClick={() => {
+                    handleScreenShare(isSharingEnabled);
+                  }}
+                >
+                  {isSharingEnabled ? 'stop screen share' : 'start screen share'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => {
+                    enableHandRaisedAction();
+                  }}
+                >
+                  {enableHandRaised ? "Disable Hand Raised" : "Enable Hand Raised"}
+                </button>
+              </div>
 
-          <button
-            type="button"
-            className="btn btn-primary btn-sm"
-            onClick={() => {
-              enableHandRaisedAction();
-            }}
-          >
-            {enableHandRaised ? "Disable Hand Raised" : "Enable Hand Raised"}
-          </button>
+            )}
+
 
           {"        "}
 
@@ -440,6 +525,7 @@ export default function RoomApp() {
 
         pinUser={pinUser}
         pinUserAction={pinUserAction}
+        role={role}
       />
       {/* < SlideDrawerGame show={drawerGameOpen} drawerToggleClickHandler={drawerGameToggleClickHandler} joinState={joinState} username={username} /> */}
       {drawerOpen ? <Backdrop /> : null}
@@ -485,6 +571,13 @@ export default function RoomApp() {
                 }}
               />
             </label>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <Select defaultValue={role}
+                onChange={(item) => updateRole(item.value)}
+                options={options}
+              />
+            </div>
+
 
             <br />
             <br />
@@ -520,8 +613,8 @@ export default function RoomApp() {
                   className="btn btn-primary btn-sm"
                   disabled={joinState}
                   onClick={() => {
-                    console.log("Join --- channel " + channel)
-                    join(channel, token, initRm, username);
+                    //console.log("Join --- channel ", role)
+                    join(channel, token, initRm, username, role);
                   }}
                 >
                   Join
@@ -590,29 +683,33 @@ export default function RoomApp() {
 
                     <br />
                     <br />
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      disabled={!joinState}
-                      onClick={() => {
-                        muteAudio(false, setDisableAudio)
-                      }}
-                    >
-                      {!muteAudioState ? "MuteAudio" : "UnmuteAudio"}
-                    </button>
-                    {"        "}
-                    <button
-                      id="leave"
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      disabled={!joinState}
-                      onClick={() => {
-                        muteVideo(false, setDisableVideo);
-                      }}
-                    >
-                      {!muteVideoState ? "MuteVideo" : "UnmuteVideo"}
+                    {!isUserAudience && (
+                      <>
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          disabled={!joinState}
+                          onClick={() => {
+                            muteAudio(false, setDisableAudio)
+                          }}
+                        >
+                          {!muteAudioState ? "MuteAudio" : "UnmuteAudio"}
+                        </button>
+                        {"        "}
+                        <button
+                          id="leave"
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          disabled={!joinState}
+                          onClick={() => {
+                            muteVideo(false, setDisableVideo);
+                          }}
+                        >
+                          {!muteVideoState ? "MuteVideo" : "UnmuteVideo"}
 
-                    </button>
+                        </button>
+                      </>
+                    )}
                   </div> : null
               }
               {/* remoteUsersMap,

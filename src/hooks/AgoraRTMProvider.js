@@ -280,9 +280,11 @@ const AgoraRTMProvider = ({ children }) => {
         const message = JSON.stringify({ text: "", action: OneToMany.SCREEN_SHARED, status: status })
         sendMessageChannel(message, function (result, error) {
             if (result != null) {
+                setShareShareStatus(true);
                 callback(result, null)
-                console.log("==>shareShareAction ", JSON.stringify(status))
+                console.log("==>shareShareAction ", JSON.stringify(result))
             } else {
+                setShareShareStatus(false);
                 callback(null, error)
             }
         })
