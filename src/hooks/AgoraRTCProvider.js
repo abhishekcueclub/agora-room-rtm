@@ -397,7 +397,17 @@ const AgoraRTCProvider = ({ children }) => {
         client.on("user-left", handleUserLeft);
         client.enableAudioVolumeIndicator();
         client.on("volume-indicator", highlightingaSpeaker);
+        client.onPlaybackDeviceChanged = (info) => {
+            console.log("speaker changed!", info.state, info.device);
+        };
 
+        client.onMicrophoneChanged = (info) => {
+            console.log("microphone changed!", info.state, info.device);
+        };
+
+        client.onCameraChanged = (info) => {
+            console.log("camera changed!", info.state, info.device);
+        };
         return () => {
             client.off("user-published", handleUserPublished);
             client.off("user-unpublished", handleUserUnpublished);

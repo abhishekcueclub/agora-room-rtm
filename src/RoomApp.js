@@ -39,7 +39,7 @@ export default function RoomApp() {
   const [channel, setChannel] = useState("demo_channel");
   // // eslint-disable-next-line
   // eslint-disable-next-line
-  const [token, setToken] = useState("007eJxTYFid6SO2yiftSlLvr+oVS2re7XjDl2/KWfh72/o5fa/2rw1SYDA3MUw1M7Q0MkwysjBJM0lJSkpOS01KNrQ0S0pOMTa2mLV5UXJDICNDhPV2FkYGCATxeRhSUnPz45MzEvPyUnMYGAAmYSVU");
+  const [token, setToken] = useState("007eJxTYJCZf5O/JPn5yaVLVt8Nv3nAfCJD3iTFP1ppPfeFH4V/PyuqwGBuYphqZmhpZJhkZGGSZpKSlJSclpqUbGhplpScYmxsEVO2NLkhkJGhbd1BVkYGCATx+RlSUnPz45MzEvPyUnPiE5MYGABgziXb");
 
   // let channelName = channel;
   // eslint-disable-next-line
@@ -87,7 +87,9 @@ export default function RoomApp() {
     roomMediaType,
 
     forceRemoveUserAction,
-    forceRemoveUser
+    forceRemoveUser,
+    recordingStatusAction,
+    recordingStatus
   } = useAgoraRTM();
 
   const [poketoUser, setPokeToUser] = useState("");
@@ -419,6 +421,9 @@ export default function RoomApp() {
           : null
       }
       < SlideDrawer
+
+        recordingStatusAction={recordingStatusAction}
+        recordingStatus={recordingStatus}
         forceRemoveUserAction={forceRemoveUserAction}
         updateRoomMediaTypeAction={updateRoomMediaTypeAction}
         roomMediaType={roomMediaType}

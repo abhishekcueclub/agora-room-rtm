@@ -58,6 +58,10 @@ const AgoraRTMProvider = ({ children }) => {
 
     let [roomType, setRoomType] = useState(RoomType.PRIVATE);
     let [roomMediaType, setRoomMediaType] = useState(RoomMediaType.AUDIO);
+    let [recordingStatus, setRecordingStatus] = useState(false);
+
+
+
 
 
     useEffect(() => {
@@ -135,6 +139,20 @@ const AgoraRTMProvider = ({ children }) => {
         sendMessageChannel(message, function (result, error) {
             if (result != null) {
                 setEnableHandRaised(!enableHandRaised)
+            }
+        })
+    }
+
+
+
+
+    async function recordingStatusAction() {
+        const message = JSON.stringify({ action: OneToMany.RECORDING_STATUS, status: !recordingStatus })
+
+        // Make API Calls
+        sendMessageChannel(message, function (result, error) {
+            if (result != null) {
+                setRecordingStatus(!recordingStatus);
             }
         })
     }
@@ -476,8 +494,10 @@ const AgoraRTMProvider = ({ children }) => {
 
     function processOneToManyMessage(agoraRTMObject, uid) {
         console.log(username + "  >processOneToManyMessage===", agoraRTMObject)
-
-        if (agoraRTMObject.action === OneToMany.CONVERT_VIDEO_ROOM) {
+        if (agoraRTMObject.action === OneToMany.RECORDING_STATUS) {
+            // setRoomMediaType(agoraRTMObject?.additionalData.roomMediaTypeValue)
+            setRecordingStatus(agoraRTMObject.status)
+        } else if (agoraRTMObject.action === OneToMany.CONVERT_VIDEO_ROOM) {
             setRoomMediaType(agoraRTMObject?.additionalData.roomMediaTypeValue)
         } else if (agoraRTMObject.action === OneToMany.UPDATE_ROOM_TYPE) {
             setRoomType(agoraRTMObject?.additionalData.roomType)
@@ -623,6 +643,8 @@ const AgoraRTMProvider = ({ children }) => {
                 roomMediaType,
                 forceRemoveUserAction,
                 forceRemoveUser,
+                recordingStatusAction,
+                recordingStatus
             }}
         >
             {children}

@@ -5,27 +5,27 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
-    "agora-extension-virtual-background": "^1.1.2",
+    "agora-extension-virtual-background": "1.1.2",
     "agora-rtc-sdk-ng": "4.15.1",
     "agora-rtm-sdk": "1.6.0-204",
     "bootstrap": "4.5.3",
-    "flatlist-react": "^1.5.7",
-    "lodash": "^4.17.21",
+    "flatlist-react": "1.5.7",
+    "lodash": "4.17.21",
     "randomcolor": "0.6.2",
     "react": "17.0.0",
     "react-alert": "7.0.0",
-    "react-alert-template-basic": "^1.0.2",
-    "react-chat-window": "^1.2.1",
+    "react-alert-template-basic": "1.0.2",
+    "react-chat-window": "1.2.1",
     "react-dom": "17.0.0",
-    "react-draggable": "^4.4.5",
+    "react-draggable": "4.4.5",
     "react-scripts": "3.4.3"
   },
   "devDependencies": {
     "typescript": "3.8.3"
   },
   "scripts": {
-    "build": "export SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
-    "start": "export SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },

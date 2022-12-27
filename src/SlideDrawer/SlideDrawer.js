@@ -21,6 +21,19 @@ export default class SlideDrawer extends React.Component {
                 >
                     Hide Participants
                 </button>
+                {"  "}
+
+                <button
+                    className="btn btn-primary btn-sm"
+                    type="button"
+                    onClick={() => {
+                        this.props.recordingStatusAction();
+                    }}
+                >
+                    {this?.props?.recordingStatus ? "Stop Recroding" : "Start Recording"}
+                </button>
+
+
                 <h1>Participants {this.props.remoteUsers?.length}</h1>
                 <h1>RoomType {this?.props?.roomType}</h1>
                 <h1>RoomMediaType {this?.props?.roomMediaType}</h1>
