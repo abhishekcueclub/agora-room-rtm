@@ -62,6 +62,9 @@ const AgoraRTMProvider = ({ children }) => {
 
 
 
+    let [cameraEnabledForUser, setCameraEnabledForUser] = useState(null);
+
+
 
 
     useEffect(() => {
@@ -365,6 +368,18 @@ const AgoraRTMProvider = ({ children }) => {
         })
     }
 
+
+
+    async function sendCameraEnabledDisabled(status) {
+        const message = JSON.stringify({ action: OneToMany.ENABLE_CAMERA, senderId: username, peerId: username, status: status })
+
+        sendMessageChannel(message, function (result, error) {
+            if (result != null) {
+                console.log("==>sendCameraEnabledDisabled ", JSON.stringify(result))
+            }
+        })
+    }
+
     // async function inviteOnStageAction(peerId) {
     //     const message = JSON.stringify({ text: "", role, peerId: peerId })
     // sendMessageChannel(message, function (result, error) {
@@ -496,80 +511,88 @@ const AgoraRTMProvider = ({ children }) => {
 
     function processOneToManyMessage(agoraRTMObject, uid) {
         console.log(username + "  >processOneToManyMessage===", agoraRTMObject)
-        if (agoraRTMObject.action === OneToMany.RECORDING_STATUS) {
+
+
+
+
+        if (agoraRTMObject.action === OneToMany.ENABLE_CAMERA) {
             // setRoomMediaType(agoraRTMObject?.additionalData.roomMediaTypeValue)
-            setRecordingStatus(agoraRTMObject.status)
-        } else if (agoraRTMObject.action === OneToMany.CONVERT_VIDEO_ROOM) {
-            setRoomMediaType(agoraRTMObject?.additionalData.roomMediaTypeValue)
-        } else if (agoraRTMObject.action === OneToMany.UPDATE_ROOM_TYPE) {
-            setRoomType(agoraRTMObject?.additionalData.roomType)
-        } else if (agoraRTMObject.action === OneToModerator.INVITED_ON_STAGE_REJECT) {
-            alert.success(agoraRTMObject?.additionalData?.role + " invite is rejected by " + agoraRTMObject.peerId);
-            setUserRole(UserRole.LISTENER)
+            setCameraEnabledForUser(agoraRTMObject.peerId)
+        } else
+            if (agoraRTMObject.action === OneToMany.RECORDING_STATUS) {
+                // setRoomMediaType(agoraRTMObject?.additionalData.roomMediaTypeValue)
+                setRecordingStatus(agoraRTMObject.status)
+            } else if (agoraRTMObject.action === OneToMany.CONVERT_VIDEO_ROOM) {
+                setRoomMediaType(agoraRTMObject?.additionalData.roomMediaTypeValue)
+            } else if (agoraRTMObject.action === OneToMany.UPDATE_ROOM_TYPE) {
+                setRoomType(agoraRTMObject?.additionalData.roomType)
+            } else if (agoraRTMObject.action === OneToModerator.INVITED_ON_STAGE_REJECT) {
+                alert.success(agoraRTMObject?.additionalData?.role + " invite is rejected by " + agoraRTMObject.peerId);
+                setUserRole(UserRole.LISTENER)
 
-        } else if (agoraRTMObject.action === OneToModerator.INVITED_ON_STAGE_ACCEPT) {
-            alert.success(agoraRTMObject?.additionalData?.role + " invite is accepted by " + agoraRTMObject.peerId);
-            setUserRole(UserRole.LISTENER)
+            } else if (agoraRTMObject.action === OneToModerator.INVITED_ON_STAGE_ACCEPT) {
+                alert.success(agoraRTMObject?.additionalData?.role + " invite is accepted by " + agoraRTMObject.peerId);
+                setUserRole(UserRole.LISTENER)
 
-        } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_ACCEPTED) {
-            setRemoveHandRaised(agoraRTMObject.peerId)
-        } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_REJECTED) {
-            // if (agoraRTMObject.peerId === username) {
-            //     // setRole("")
+            } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_ACCEPTED) {
+                setRemoveHandRaised(agoraRTMObject.peerId)
+            } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_REJECTED) {
+                // if (agoraRTMObject.peerId === username) {
+                //     // setRole("")
 
-            //     alert.success("hand raise rejected");
-            // }
-            setRemoveHandRaised(agoraRTMObject.peerId)
-        } else if (agoraRTMObject.action === OneToMany.HAND_RAISED) {
-            console.log("remain handRaisedUser processOneToManyMessage===>", handRaisedUser)
+                //     alert.success("hand raise rejected");
+                // }
+                setRemoveHandRaised(agoraRTMObject.peerId)
+            } else if (agoraRTMObject.action === OneToMany.HAND_RAISED) {
+                console.log("remain handRaisedUser processOneToManyMessage===>", handRaisedUser)
 
-            if (agoraRTMObject?.status) {
-                setNewHandRaised(agoraRTMObject?.senderId)
+                if (agoraRTMObject?.status) {
+                    setNewHandRaised(agoraRTMObject?.senderId)
 
-            } else {
-                setRemoveHandRaised(agoraRTMObject?.senderId)
+                } else {
+                    setRemoveHandRaised(agoraRTMObject?.senderId)
+                }
+
             }
-
-        }
-        else if (agoraRTMObject.action === OneToMany.DISABLE_HAND_RAISED) {
-            setEnableHandRaised(false)
-        } else if (agoraRTMObject.action === OneToMany.ENABLE_HAND_RAISED) {
-            setEnableHandRaised(true)
-        } else if (agoraRTMObject.action === AdditionalAction.PRESS_BUZZER) {
-            setBuzzerIsPressedBy(uid)
-        } else if (agoraRTMObject.action === AdditionalAction.CLEAR_BUZZER) {
-            setBuzzersList([])
-        }
-        else if (agoraRTMObject.action === OneToMany.SPOTLIGHTED_USER) {
-            alert.success("SPOTLIGHTED_USER");
-            setSpotlightedUser(agoraRTMObject?.text)
-            setForceEnableVideo(false)
-        } else if (agoraRTMObject.action === OneToMany.TEXT) {
-            const dataMessage = {
-                author: "them",
-                type: 'text',
-                data: {
-                    text: uid + ": " + agoraRTMObject?.text
-                },
+            else if (agoraRTMObject.action === OneToMany.DISABLE_HAND_RAISED) {
+                setEnableHandRaised(false)
+            } else if (agoraRTMObject.action === OneToMany.ENABLE_HAND_RAISED) {
+                setEnableHandRaised(true)
+            } else if (agoraRTMObject.action === AdditionalAction.PRESS_BUZZER) {
+                setBuzzerIsPressedBy(uid)
+            } else if (agoraRTMObject.action === AdditionalAction.CLEAR_BUZZER) {
+                setBuzzersList([])
             }
-            setCurrentMessage(dataMessage);
-        } else if (agoraRTMObject.action === OneToMany.REMOVED_SPOTLIGHTED_USER) {
-            setForceEnableVideo(true)
-        } else if (agoraRTMObject.action === OneToMany.MAKE_ROOM_PUBLIC) {
-            alert.success("your audio is disabled");
-        } else if (agoraRTMObject.action === OneToMany.MAKE_ROOM_PRIVATE) {
+            else if (agoraRTMObject.action === OneToMany.SPOTLIGHTED_USER) {
+                alert.success("SPOTLIGHTED_USER");
+                setSpotlightedUser(agoraRTMObject?.text)
+                setForceEnableVideo(false)
+            } else if (agoraRTMObject.action === OneToMany.TEXT) {
+                const dataMessage = {
+                    author: "them",
+                    type: 'text',
+                    data: {
+                        text: uid + ": " + agoraRTMObject?.text
+                    },
+                }
+                setCurrentMessage(dataMessage);
+            } else if (agoraRTMObject.action === OneToMany.REMOVED_SPOTLIGHTED_USER) {
+                setForceEnableVideo(true)
+            } else if (agoraRTMObject.action === OneToMany.MAKE_ROOM_PUBLIC) {
+                alert.success("your audio is disabled");
+            } else if (agoraRTMObject.action === OneToMany.MAKE_ROOM_PRIVATE) {
 
-        } else if (agoraRTMObject.action === OneToMany.RECORDING_STARTED) {
-            alert.success("your video is disabled");
-        } else if (agoraRTMObject.action === OneToMany.RECORDING_STOPED) {
+            } else if (agoraRTMObject.action === OneToMany.RECORDING_STARTED) {
+                alert.success("your video is disabled");
+            } else if (agoraRTMObject.action === OneToMany.RECORDING_STOPED) {
 
-        } else if (agoraRTMObject.action === OneToMany.REACTION_SEND) {
+            } else if (agoraRTMObject.action === OneToMany.REACTION_SEND) {
 
-        } else if (agoraRTMObject.action === OneToMany.STREAM_STATUS) {
+            } else if (agoraRTMObject.action === OneToMany.STREAM_STATUS) {
 
-        } else if (agoraRTMObject.action === OneToMany.SCREEN_SHARED) {
-            setShareShareStatus(agoraRTMObject?.status)
-        }
+            } else if (agoraRTMObject.action === OneToMany.SCREEN_SHARED) {
+                setShareShareStatus(agoraRTMObject?.status)
+            }
     }
 
     // let [newHandRaised, setNewHandRaised] = useState("");
@@ -646,7 +669,10 @@ const AgoraRTMProvider = ({ children }) => {
                 forceRemoveUserAction,
                 forceRemoveUser,
                 recordingStatusAction,
-                recordingStatus
+                recordingStatus,
+                cameraEnabledForUser,
+                sendCameraEnabledDisabled,
+                setCameraEnabledForUser
             }}
         >
             {children}
@@ -658,7 +684,7 @@ const AgoraRTMProvider = ({ children }) => {
 
 const useAgoraRTM = () => {
     const agoraObject = useContext(AgoraRTMContext);
-    if (agoraObject == null) {
+    if (agoraObject === null) {
         throw new Error("useAgoraRTM() called outside of a AgoraRTMProvider?");
     }
     return agoraObject;

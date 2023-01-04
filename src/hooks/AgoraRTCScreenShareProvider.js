@@ -35,7 +35,7 @@ const AgoraRTCScreenShareProvider = ({ children }) => {
         clientScreenShare.setClientRole("host");
         //const tok = "";
 
-        if (status == false) {
+        if (status === false) {
             const _uid = await clientScreenShare.join(appid, 'demo_channel', tok, 'screen');
             // Create a screen track for screen sharing.
             //[ILocalVideoTrack, ILocalAudioTrack] | ILocalVideoTrack>
@@ -136,7 +136,7 @@ const AgoraRTCScreenShareProvider = ({ children }) => {
 
 const useAgoraScreenShare = () => {
     const agoraObject1 = useContext(AgoraRTCScreenShareContext);
-    if (agoraObject1 == null) {
+    if (agoraObject1 === null) {
         throw new Error("useAgoraRTC() called outside of a AgoraRTCProvider?");
     }
     return agoraObject1;

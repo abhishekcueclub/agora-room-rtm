@@ -41,7 +41,7 @@ export default function RoomApp() {
   const [channel, setChannel] = useState("demo_channel");
   // // eslint-disable-next-line
   // eslint-disable-next-line
-  const [token, setToken] = useState("007eJxTYDiwoPb6HYPzvOfqJ/3+tNDFfNtc+4s+8u5ZsjeD0zZ/nXJEgcHcxDDVzNDSyDDJyMIkzSQlKSk5LTUp2dDSLCk5xdjYQmbqquSGQEYGtXYhVkYGCATxeRhSUnPz45MzEvPyUnMYGAARCSQm");
+  const [token, setToken] = useState("007eJxTYOCN9XgcnLz2+xvzO1onVR+EP6zVX/d54/IDges6ox2sFDYoMJibGKaaGVoaGSYZWZikmaQkJSWnpSYlG1qaJSWnGBtbTP69NbkhkJEhl2ktIyMDBIL4PAwpqbn58ckZiXl5qTkMDADc6CRl");
 
   // let channelName = channel;
   // eslint-disable-next-line
@@ -96,7 +96,10 @@ export default function RoomApp() {
     forceRemoveUserAction,
     forceRemoveUser,
     recordingStatusAction,
-    recordingStatus
+    recordingStatus,
+    cameraEnabledForUser,
+    sendCameraEnabledDisabled,
+    setCameraEnabledForUser
   } = useAgoraRTM();
 
   const [poketoUser, setPokeToUser] = useState("");
@@ -127,7 +130,9 @@ export default function RoomApp() {
     forceVideo,
     client,
     role,
-    updateRole
+    updateRole,
+    remoteUserIndexViaIdMap,
+    updateCameraEnabledForUser
   } = useAgoraRTC()
 
   const {
@@ -137,7 +142,21 @@ export default function RoomApp() {
     localscreenTrack,
   } = useAgoraScreenShare();
 
+  const [initialLaunch, setInitiaLaunch] = useState(false)
 
+
+  useEffect(() => {
+    if (initialLaunch) {
+      sendCameraEnabledDisabled(muteVideoState)
+    }
+    setInitiaLaunch(true)
+  }, [muteVideoState])
+
+  useEffect(() => {
+    if (cameraEnabledForUser != null) {
+      updateCameraEnabledForUser(cameraEnabledForUser, setCameraEnabledForUser)
+    }
+  }, [cameraEnabledForUser])
 
   //useAgora(client, extension);
 
@@ -714,7 +733,44 @@ export default function RoomApp() {
               }
               {/* remoteUsersMap,
               remoteUsersSet */}
-              {remoteUsersSet.map((userId) => {
+
+              {
+
+                [...Array(remoteUsersMap?.length)].map((_, idIndex) => {
+
+                  const userId = remoteUserIndexViaIdMap?.get(idIndex)
+
+                  const user = remoteUsersMap?.get(userId)
+
+                  console.log("idIndex====>Array", idIndex)
+                  console.log("user====>Array", user)
+                  console.log("remoteUsersMap====>Array", remoteUsersMap)
+                  console.log("remoteUserIndexViaIdMap====>Array", remoteUserIndexViaIdMap)
+
+                  return (user != null ? <div>{
+                    user === null || spotlightedUser === userId ? null : <div className="remote-player-wrapper" key={userId} >
+                      <MediaPlayer
+                        isSelf={false}
+                        videoTrack={user?.videoTrack}
+                        audioTrack={user?.audioTrack}
+                        username={user?.uid}
+                      ></MediaPlayer>
+                      <label>{user?.uid} </label> {" || "}
+                      <label> {user?._video_muted_ ? "Video disabled" : "Video enabled"}</label>
+                      {" || "}
+                      <label> {user?._audio_muted_ ? "Audio disabled" : "Audio enabled"}</label>
+                      <label> User int Id {user?._uintid}</label>
+
+
+                    </div>
+                  }</div> : null)
+
+                })
+
+              }
+
+
+              {/* {remoteUsersSet.map((userId) => {
                 const user = remoteUsersMap.get(userId)
                 console.log("remoteUsersSet abhishek", user)
                 // return (<div><p>{userId + "--" + JSON.stringify(user)}</p></div>)
@@ -736,7 +792,7 @@ export default function RoomApp() {
                   </div>
                 }</div>)
               }
-              )}
+              )} */}
             </div>
           </div>
         </div>

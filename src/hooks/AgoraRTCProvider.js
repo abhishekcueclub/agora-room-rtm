@@ -4,8 +4,8 @@ import AgoraRTC, {
 } from "agora-rtc-sdk-ng";
 import React, { useContext, useEffect, useState } from "react";
 
-import VirtualBackgroundExtension from "agora-extension-virtual-background";
 import { UserRole } from "./AgoraConstant";
+import VirtualBackgroundExtension from "agora-extension-virtual-background";
 
 export const AgoraRTCContext = React.createContext(null);
 export const appid = "61a0d4c67a4342c49298fdd84f9f0f03";
@@ -23,8 +23,22 @@ const AgoraRTCProvider = ({ children }) => {
     // const [userId, setUserId] = useState(null);
     const [username, setUsername] = useState("");
     const [currentSpeaker, setCurrentSpeaker] = useState("");
+
+    const [remoteUsers, setRemoteUsers] = useState([]);
+
+    // actual userId
+    // const [remoteUserIds, setRemoteUserIds] = useState([]);
+    // id to index map Data in Map
+    const [remoteUserIndexViaIdMap, setRemoteUserIndexViaIdMap] = useState(null);
+    // User Data in Map
     const [remoteUsersMap, setRemoteUsersMap] = useState(null);
+    // User index
     const [remoteUsersSet, setRemoteUsersSet] = useState([]);
+
+    // // Video Enabled UserList
+    // const [videoEnabledUserList, setVideoEnabledUserList] = useState([]);
+    // // Video Disable UserList
+    // const [videoDisabledUserList, setVideoDisabledUserList] = useState([]);
 
 
 
@@ -33,16 +47,15 @@ const AgoraRTCProvider = ({ children }) => {
 
     const [joinState, setJoinState] = useState(false);
 
-    const [remoteUsers, setRemoteUsers] = useState([]);
     const [muteVideoState, setMuteVideoState] = useState(true)
     const [muteAudioState, setMuteAudioState] = useState(true)
     // eslint-disable-next-line
     const [processor, setProcessor] = useState(null)
     // eslint-disable-next-line
     const [virtualBackgroundEnabled, setVirtualBackgroundEnabled] = useState(false)
-    const [isUserAudience,setIsUserAudience] = useState(true);
-    const [localscreenTrack , setLocalScreenTack] = useState(null);
-    const [tok , setTok] = useState('');
+    const [isUserAudience, setIsUserAudience] = useState(true);
+    const [localscreenTrack, setLocalScreenTack] = useState(null);
+    // const [tok, setTok] = useState('');
     const [role, setRole] = useState(UserRole.LISTENER);
     // Initialization
     async function getProcessorInstance() {
@@ -264,11 +277,11 @@ const AgoraRTCProvider = ({ children }) => {
         setIsUserAudience(name && name.startsWith('cue') ? false : true)
         setUsername(name)
     }
-    async function updateRole(role){
-        console.log('kkkkkk',role)
+    async function updateRole(role) {
+        console.log('kkkkkk', role)
         setRole(role);
-        setIsUserAudience(role==UserRole.MODERATOR || role == UserRole.SPEAKER ? false:true)
-      }
+        setIsUserAudience(role === UserRole.MODERATOR || role === UserRole.SPEAKER ? false : true)
+    }
     async function createLocalTracks() {
         const [
             microphoneTrack,
@@ -291,30 +304,31 @@ const AgoraRTCProvider = ({ children }) => {
 
     async function join(channel, token, initRm, username_detail) {
         console.log("Join --- client", client)
-        setTok(token);
+        // setTok(token);
         if (!client) return;
 
         console.log("Join --- 1")
         const [microphoneTrack, cameraTrack] = await createLocalTracks();
 
         await client.join(appid, channel, token, username_detail);
-        await client.setClientRole(isUserAudience ? 'audience':'host');
-        if(!isUserAudience){
+        await client.setClientRole(isUserAudience ? 'audience' : 'host');
+        if (!isUserAudience) {
             //** camera check */
-        var devices = await AgoraRTC.getDevices();
-        var cameras = devices.filter(device => device.kind === 'videoinput');
-        console.log("cameras===>", cameras)
-        if (cameras.length > 0) {
-            // const videoTrack = await AgoraRTC.createCameraVideoTrack();
-            // console.warn(" camera Found!!!");
-            await client.publish([microphoneTrack, cameraTrack]);
-        } else {
-            await client.publish([microphoneTrack]);
-            // console.warn("No camera only audio!!!");
+            var devices = await AgoraRTC.getDevices();
+            var cameras = devices.filter(device => device.kind === 'videoinput');
+            console.log("cameras===>", cameras)
+            microphoneTrack.setEnabled(false)
+            if (cameras.length > 0) {
+                // const videoTrack = await AgoraRTC.createCameraVideoTrack();
+                // console.warn(" camera Found!!!");
+                cameraTrack.setEnabled(false)
+                await client.publish([microphoneTrack, cameraTrack]);
+            } else {
+                await client.publish([microphoneTrack]);
+                // console.warn("No camera only audio!!!");
+            }
         }
-        }
-        microphoneTrack.setEnabled(false)
-        cameraTrack.setEnabled(false)
+
         setJoinState(true);
         console.log("Join --- 2")
         initRm(username_detail)
@@ -336,6 +350,34 @@ const AgoraRTCProvider = ({ children }) => {
         await client.leave();
     }
 
+    // const [videoEnabledUserList, setVideoEnabledUserList] = useState([]);
+    // const [videoDisabledUserList, setVideoDisabledUserList] = useState([]);
+
+
+    // useEffect(() => {
+    //     const remoteUserProcess = remoteUsersMap != null ? remoteUsersMap : new Map();
+    //     const remoteUidDataProcess = []
+    //     console.log("===>remoteUsers", remoteUsers)
+    //     // eslint-disable-next-line
+
+    //     let index = 0
+    //     remoteUsers.map((userData) => {
+    //         // console.log("userData====>uid", userData?.uid)
+    //         // console.log("userData====>", userData?.uid)
+    //         // remoteUserProcess.set(userData?.uid, userData);
+    //         // remoteUidDataProcess.push(userData?.uid)
+    //         remoteUserProcess.set(index, userData);
+    //         remoteUidDataProcess.push(index)
+    //         index = index + 1
+    //     })
+    //     // setRemoteUsersMap(remoteUserProcess)
+    //     console.log("remoteUsersSet=====>", remoteUidDataProcess)
+
+    //     setRemoteUsersSet([...new Set([...remoteUidDataProcess])])
+    //     // eslint-disable-next-line
+    // }, [remoteUsers])
+
+
     useEffect(() => {
         if (!client) return;
         setRemoteUsers(client.remoteUsers);
@@ -351,13 +393,15 @@ const AgoraRTCProvider = ({ children }) => {
         const handleUserUnpublished = (user) => {
             console.log("agora----handleUserUnpublished user===>", user)
 
+
             setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
         };
 
+        /* 
+        * User joined processing for ordering 
+        */
         const handleUserJoined = (user) => {
             console.log("agora----handleUserJoined user===>", user)
-            // setUserId(user)
-
             setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
         };
 
@@ -371,31 +415,10 @@ const AgoraRTCProvider = ({ children }) => {
         const highlightingaSpeaker = (user) => {
             console.log("agora----highlightingaSpeaker user===>", user)
             console.log("agora----highlightingaSpeaker remoteUsers===>", remoteUsers)
-
-            // const remoteUidDataProcess = []
-            // for (var i = 0; i < user.length; i++) {
-            //   user.sort(function (a, b) { return b.level - a.level; });
-            // }
-
             user.sort((a, b) => b.level - a.level)
-            // const remoteUidDataProcess = []
             if (user?.length > 1) {
                 setCurrentSpeaker(user[0]?.uid)
             }
-            // console.log("user---------->highlightingaSpeaker", user)
-            // user.forEach((volume) => {
-            //   console.log(`UID ${volume.uid} Level ${volume.level}`);
-
-            //   if (volume.level > 5) {
-            //     setCurrentSpeaker(volume.uid)
-            //   }
-            //   if (username != volume.uid) {
-            //     remoteUidDataProcess.push(volume.uid)
-            //   }
-
-            // })
-
-
         };
 
 
@@ -442,21 +465,35 @@ const AgoraRTCProvider = ({ children }) => {
 
 
     useEffect(() => {
-        const remoteUserProcess = remoteUsersMap != null ? remoteUsersMap : new Map();
+        const remoteUserProcess = remoteUsersMap !== null ? remoteUsersMap : new Map();
+
+        const remoteUserIndexViaIdProcess = remoteUserIndexViaIdMap !== null ? remoteUserIndexViaIdMap : new Map();
+
         const remoteUidDataProcess = []
         // eslint-disable-next-line
+        let index = 0
         remoteUsers.map((userData) => {
             // console.log("userData====>uid", userData?.uid)
             // console.log("userData====>", userData?.uid)
             remoteUserProcess.set(userData?.uid, userData);
             remoteUidDataProcess.push(userData?.uid)
+            remoteUserIndexViaIdProcess.set(index, userData?.uid);
+            index = index + 1
         })
+
+        console.log("remoteUserIndexViaIdProcess=======>", remoteUserIndexViaIdProcess)
+        setRemoteUserIndexViaIdMap(remoteUserIndexViaIdProcess)
         setRemoteUsersMap(remoteUserProcess)
         console.log("remoteUsersSet=====>", remoteUidDataProcess)
 
         setRemoteUsersSet([...new Set([...remoteUidDataProcess])])
         // eslint-disable-next-line
     }, [remoteUsers])
+
+    const updateCameraEnabledForUser = (userId, setCameraEnabledForUser) => {
+        console.log("updateCameraEnabledForUser=======>" + userId)
+        setCameraEnabledForUser(null)
+    }
 
 
     return (
@@ -487,7 +524,10 @@ const AgoraRTCProvider = ({ children }) => {
                 setBackgroundImage,
                 forceAudio,
                 forceVideo,
-                client
+                client,
+                remoteUserIndexViaIdMap,
+                updateCameraEnabledForUser
+
             }}
         >
             {children}
@@ -499,7 +539,7 @@ const AgoraRTCProvider = ({ children }) => {
 
 const useAgoraRTC = () => {
     const agoraObject = useContext(AgoraRTCContext);
-    if (agoraObject == null) {
+    if (agoraObject === null) {
         throw new Error("useAgoraRTC() called outside of a AgoraRTCProvider?");
     }
     return agoraObject;
