@@ -76,8 +76,11 @@ export const OneToMany = {
     REACTION_SEND: 'REACTION_SEND', // all to all
     STREAM_STATUS: "STREAM_STATUS", // casting information to All 
     SCREEN_SHARED: 'SCREEN_SHARED',
+    AUDIANCE_JOINED: 'AUDIANCE_JOINED',
+    AUDIANCE_LEFT:'AUDIANCE_LEFT'
 
 };
+
 
 
 
@@ -85,7 +88,8 @@ export const OneToMany = {
 export const AdditionalAction = {
     PRESS_BUZZER: 'PRESS_BUZZER',
     CLEAR_BUZZER: 'CLEAR_BUZZER',
-    POKE_USER: "POKE_USER" // casting information to All 
+    POKE_USER: "POKE_USER", // casting information to All 
+    BROADCAST_PARTICIPANTS: "BROADCAST_PARTICIPANTS"
 };
 export const AgoraChannelProfile = {
     LIVE_BROADCASTING: 'LIVE_BROADCASTING',

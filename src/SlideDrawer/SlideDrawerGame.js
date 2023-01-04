@@ -27,7 +27,7 @@ export default function SlideDrawerGame({ show, drawerToggleClickHandler, joinSt
         sendChannelMessageToPeer
     } = useAgoraChat(
         chatClient,
-        "demo_channel",);
+        "demo_channel_a",);
     const [poketoUser, setPokeToUser] = useState("");
 
 

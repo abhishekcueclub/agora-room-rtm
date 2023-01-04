@@ -30,13 +30,10 @@ const AgoraRTCScreenShareProvider = ({ children }) => {
 
 
     async function handleScreenShareClick(status, client, tok, callback) {
-        console.log('client 1111111111', client);
         setMainClient(client);
         clientScreenShare.setClientRole("host");
-        //const tok = "";
-
         if (status == false) {
-            const _uid = await clientScreenShare.join(appid, 'demo_channel', tok, 'screen');
+            const _uid = await clientScreenShare.join(appid, 'demo_channel_a', tok, 'screen');
             // Create a screen track for screen sharing.
             //[ILocalVideoTrack, ILocalAudioTrack] | ILocalVideoTrack>
             const screenTrack = await AgoraRTC.createScreenVideoTrack();

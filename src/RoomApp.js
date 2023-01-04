@@ -38,10 +38,10 @@ import { useAgoraScreenShare } from "./hooks/AgoraRTCScreenShareProvider";
 // AgoraRTC.registerExtensions([extension]);
 
 export default function RoomApp() {
-  const [channel, setChannel] = useState("demo_channel");
+  const [channel, setChannel] = useState("demo_channel_a");
   // // eslint-disable-next-line
   // eslint-disable-next-line
-  const [token, setToken] = useState("007eJxTYDiwoPb6HYPzvOfqJ/3+tNDFfNtc+4s+8u5ZsjeD0zZ/nXJEgcHcxDDVzNDSyDDJyMIkzSQlKSk5LTUp2dDSLCk5xdjYQmbqquSGQEYGtXYhVkYGCATxeRhSUnPz45MzEvPyUnMYGAARCSQm");
+  const [token, setToken] = useState("007eJxTYNjXfePNnv23H2/7/8iH42W/375oj8PHfpSx26eWqlTGpO9WYDA3MUw1M7Q0MkwysjBJM0lJSkpOS01KNrQ0S0pOMTa2iL+5NbkhkJFBUOkgKyMDBIL4fAwpqbn58ckZiXl5qTnxiQwMAOWYJoc=");
 
   // let channelName = channel;
   // eslint-disable-next-line
@@ -96,7 +96,9 @@ export default function RoomApp() {
     forceRemoveUserAction,
     forceRemoveUser,
     recordingStatusAction,
-    recordingStatus
+    recordingStatus,
+    handleAudianceJoined,
+    audianceData,
   } = useAgoraRTM();
 
   const [poketoUser, setPokeToUser] = useState("");
@@ -115,10 +117,6 @@ export default function RoomApp() {
     updateUsername,
     username,
     isUserAudience,
-    // setIsSharingEnabled,
-    // isSharingEnabled,
-    // localscreenTrack,
-    // handleScreenShareClick,
     currentSpeaker,
     setBackgroundBlurring,
     setBackgroundColor,
@@ -127,7 +125,8 @@ export default function RoomApp() {
     forceVideo,
     client,
     role,
-    updateRole
+    updateRole,
+    isAudienceJoined
   } = useAgoraRTC()
 
   const {
@@ -145,7 +144,18 @@ export default function RoomApp() {
   useEffect(() => {
     setIsSharingEnabled(isShareShareStatus)
   }, [isShareShareStatus])
+  //mapping aud
+  useEffect(() => {
+    if (isAudienceJoined) {
+      console.log('came inside aud')
 
+      handleAudianceJoined();
+    }
+
+  }, [isAudienceJoined])
+useEffect(()=>{
+  console.log('audianceData 123', audianceData)
+},[audianceData])
   useEffect(() => {
     // const min = 1000;
     // const max = 9999;
@@ -762,6 +772,17 @@ export default function RoomApp() {
 
       {
         joinState ? <div>
+          <div>
+            <label>Audience list</label>
+            <div>
+              {console.log('iiiiiiiiii', audianceData)}
+              {audianceData?.map((user, index) => (
+                <div className="remote-player-wrapper" key={user}>
+                  <label>{index + 1}: {user}</label>
+                </div>))}
+            </div>
+          </div>
+          <h3>===============================================</h3>
           <label>Buzzer is pressed by</label>
           <br />
           {buzzersList?.map((user, index) => (

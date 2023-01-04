@@ -44,6 +44,8 @@ const AgoraRTCProvider = ({ children }) => {
     const [localscreenTrack , setLocalScreenTack] = useState(null);
     const [tok , setTok] = useState('');
     const [role, setRole] = useState(UserRole.LISTENER);
+    const [isAudienceJoined, setIsAudienceJoined] = useState(false);
+
     // Initialization
     async function getProcessorInstance() {
         if (!processor && localVideoTrack) {
@@ -318,8 +320,15 @@ const AgoraRTCProvider = ({ children }) => {
         setJoinState(true);
         console.log("Join --- 2")
         initRm(username_detail)
+        if(isUserAudience){
+            setTimeout(() => {
+                console.log('hitting now');
+                setIsAudienceJoined(true);
+            }, 3000);
+            
+        }
+        
         getProcessorInstance()
-
     }
 
     async function leave() {
@@ -487,7 +496,8 @@ const AgoraRTCProvider = ({ children }) => {
                 setBackgroundImage,
                 forceAudio,
                 forceVideo,
-                client
+                client,
+                isAudienceJoined,
             }}
         >
             {children}
