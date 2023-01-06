@@ -44,7 +44,7 @@ const AgoraRTCProvider = ({ children }) => {
     const [localscreenTrack , setLocalScreenTack] = useState(null);
     const [tok , setTok] = useState('');
     const [role, setRole] = useState(UserRole.LISTENER);
-    const [isAudienceJoined, setIsAudienceJoined] = useState(false);
+    const [isAudienceJoined, setIsAudienceJoined] = useState(null);
 
     // Initialization
     async function getProcessorInstance() {
@@ -271,6 +271,10 @@ const AgoraRTCProvider = ({ children }) => {
         setRole(role);
         setIsUserAudience(role==UserRole.MODERATOR || role == UserRole.SPEAKER ? false:true)
       }
+      async function updateAgoraRole(roleAfterHandRaisEvent){
+        await client.setClientRole(roleAfterHandRaisEvent===UserRole.LISTENER ? 'audience':'host');
+        updateRole(roleAfterHandRaisEvent)
+      }
     async function createLocalTracks() {
         const [
             microphoneTrack,
@@ -343,6 +347,13 @@ const AgoraRTCProvider = ({ children }) => {
         setRemoteUsers([]);
         setJoinState(false);
         await client.leave();
+        if(isUserAudience){
+            setTimeout(() => {
+                console.log('hitting leave now');
+                setIsAudienceJoined(false);
+            }, 3000);
+            
+        }
     }
 
     useEffect(() => {
@@ -498,6 +509,7 @@ const AgoraRTCProvider = ({ children }) => {
                 forceVideo,
                 client,
                 isAudienceJoined,
+                updateAgoraRole
             }}
         >
             {children}

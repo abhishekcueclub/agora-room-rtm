@@ -41,7 +41,7 @@ export default function RoomApp() {
   const [channel, setChannel] = useState("demo_channel_a");
   // // eslint-disable-next-line
   // eslint-disable-next-line
-  const [token, setToken] = useState("007eJxTYNjXfePNnv23H2/7/8iH42W/375oj8PHfpSx26eWqlTGpO9WYDA3MUw1M7Q0MkwysjBJM0lJSkpOS01KNrQ0S0pOMTa2iL+5NbkhkJFBUOkgKyMDBIL4fAwpqbn58ckZiXl5qTnxiQwMAOWYJoc=");
+  const [token, setToken] = useState("007eJxTYJhfc/lWd4vggR8KgX9mXVTIb3krfkJW2uTm5D1/bdtEqjcqMJibGKaaGVoaGSYZWZikmaQkJSWnpSYlG1qaJSWnGBtbHNfZntwQyMiQzveJhZEBAkF8PoaU1Nz8+OSMxLy81Jz4RAYGADlDJRc=");
 
   // let channelName = channel;
   // eslint-disable-next-line
@@ -98,6 +98,7 @@ export default function RoomApp() {
     recordingStatusAction,
     recordingStatus,
     handleAudianceJoined,
+    handleAudianceLeft,
     audianceData,
   } = useAgoraRTM();
 
@@ -126,7 +127,8 @@ export default function RoomApp() {
     client,
     role,
     updateRole,
-    isAudienceJoined
+    isAudienceJoined,
+    updateAgoraRole
   } = useAgoraRTC()
 
   const {
@@ -139,7 +141,11 @@ export default function RoomApp() {
 
 
   //useAgora(client, extension);
-
+useEffect(()=>{
+  if(userRole !== ""){
+    updateAgoraRole(userRole);
+  }
+},[userRole])
 
   useEffect(() => {
     setIsSharingEnabled(isShareShareStatus)
@@ -151,11 +157,14 @@ export default function RoomApp() {
 
       handleAudianceJoined();
     }
+    if (isAudienceJoined == false) {
+      handleAudianceLeft()
+    }
 
   }, [isAudienceJoined])
-useEffect(()=>{
-  console.log('audianceData 123', audianceData)
-},[audianceData])
+  useEffect(() => {
+    console.log('roleeeee', role)
+  }, [role])
   useEffect(() => {
     // const min = 1000;
     // const max = 9999;
@@ -461,7 +470,7 @@ useEffect(()=>{
 
           {"        "}
           {
-            role === UserRole.MODERATOR || role === UserRole.SPEAKER && (
+             role === UserRole.SPEAKER || role === UserRole.MODERATOR && (
               <div>
                 <button
                   id="leave"

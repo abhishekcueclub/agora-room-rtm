@@ -61,8 +61,6 @@ const AgoraRTMProvider = ({ children }) => {
     let [roomMediaType, setRoomMediaType] = useState(RoomMediaType.AUDIO);
     let [recordingStatus, setRecordingStatus] = useState(false);
     const [audianceData, setAudianceData] = useState([]);
-    const [storedAudianceData, setStoredAudianceData] = useState([]);
-
 
     useEffect(() => {
         console.log("RTM username " + username)
@@ -174,6 +172,19 @@ const AgoraRTMProvider = ({ children }) => {
         })
     }
 
+    const addAudience =(uid)=>{
+        const data = [...new Set([...audianceData, uid])];
+        setAudianceData(data);
+        broadCastAllParticipants(data, uid);
+    }
+
+    const removeAudience =(uid)=>{
+        const idx = audianceData.indexOf(uid)
+            audianceData.splice(idx, idx !== -1 ? 1 : 0);
+            const data = [...new Set(audianceData)];
+            setAudianceData(data);
+    }
+
     async function handleAudianceJoined() {
         const message = JSON.stringify({ action: OneToMany.AUDIANCE_JOINED })
 
@@ -186,12 +197,14 @@ const AgoraRTMProvider = ({ children }) => {
             }
         })
     }
-    async function handleAudianceLeft(userId) {
-        const message = JSON.stringify({ action: OneToMany.AUDIANCE_JOINED })
+    async function handleAudianceLeft() {
+        const message = JSON.stringify({ action: OneToMany.AUDIANCE_LEFT })
 
         sendMessageChannel(message, function (result, error) {
             if (result != null) {
-                setBuzzerIsPressedBy(userId);
+                setIsAudienceJoined(false);
+            } else {
+                console.log('error error error', error)
             }
         })
     }
@@ -524,10 +537,11 @@ const AgoraRTMProvider = ({ children }) => {
 
         } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_ACCEPTED) {
             setUserRole(UserRole.SPEAKER)
+            console.log('hand raise accepted');
             alert.success("hand raise accepted");
             setRemoveHandRaised(agoraRTMObject.peerId)
             setHandRaised(false)
-
+            removeAudience(agoraRTMObject.peerId);
         } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_REJECTED) {
 
             alert.success("hand raise rejected");
@@ -547,10 +561,6 @@ const AgoraRTMProvider = ({ children }) => {
         } else if (agoraRTMObject.action === ModeratorToOne.FORCE_MUTED_USER_VIDEO) {
             alert.success("your video is disabled");
             setDisableVideo(true)
-        } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_ACCEPTED) {
-
-        } else if (agoraRTMObject.action === ModeratorToOne.HAND_RAISE_REJECTED) {
-
         } else if (agoraRTMObject.action === ModeratorToOne.REMOVED_FROM_ROOM) {
 
         } else if (agoraRTMObject.action === ModeratorToOne.MOVED_TO_AUDIANCE) {
@@ -640,10 +650,10 @@ const AgoraRTMProvider = ({ children }) => {
             setShareShareStatus(agoraRTMObject?.status)
         } else if (agoraRTMObject.action === OneToMany.AUDIANCE_JOINED) {
             console.log('got audience id in RTM', uid, audianceData)
-            const data = [...new Set([...audianceData, uid])];
-            setAudianceData(data);
-            //setStoredAudianceData(data)
-            broadCastAllParticipants(data, uid);
+            addAudience(uid);
+        }else if (agoraRTMObject.action === OneToMany.AUDIANCE_LEFT) {
+            console.log('got audience id in RTM', uid, audianceData)
+            removeAudience(uid);
         }
     }
 
