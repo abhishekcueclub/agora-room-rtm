@@ -41,7 +41,7 @@ export default function RoomApp() {
   const [channel, setChannel] = useState("demo_channel");
   // // eslint-disable-next-line
   // eslint-disable-next-line
-  const [token, setToken] = useState("007eJxTYOCN9XgcnLz2+xvzO1onVR+EP6zVX/d54/IDges6ox2sFDYoMJibGKaaGVoaGSYZWZikmaQkJSWnpSYlG1qaJSWnGBtbTP69NbkhkJEhl2ktIyMDBIL4PAwpqbn58ckZiXl5qTkMDADc6CRl");
+  const [token, setToken] = useState("007eJxTYEjLjpgmlOWo8fPqfR1XWyuvi5Veu55d/PPujfWpiQl6n08oMJibGKaaGVoaGSYZWZikmaQkJSWnpSYlG1qaJSWnGBtb1E7YmdwQyMhQvZWNkZEBAkF8HoaU1Nz8+OSMxLy81BwGBgDefySP");
 
   // let channelName = channel;
   // eslint-disable-next-line
@@ -736,7 +736,7 @@ export default function RoomApp() {
 
               {
 
-                [...Array(remoteUsersMap?.length)].map((_, idIndex) => {
+                [...Array(remoteUsersSet?.length)].map((_, idIndex) => {
 
                   const userId = remoteUserIndexViaIdMap?.get(idIndex)
 
