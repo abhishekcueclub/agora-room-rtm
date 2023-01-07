@@ -22,6 +22,8 @@ const AgoraRTCProvider = ({ children }) => {
     // let USER_ID = Math.floor(Math.random() * 100000001)
     // const [userId, setUserId] = useState(null);
     const [username, setUsername] = useState("");
+    const [isUserAudience, setIsUserAudience] = useState(true);
+
     const [currentSpeaker, setCurrentSpeaker] = useState("");
 
     const [remoteUsers, setRemoteUsers] = useState([]);
@@ -55,7 +57,7 @@ const AgoraRTCProvider = ({ children }) => {
     const [processor, setProcessor] = useState(null)
     // eslint-disable-next-line
     const [virtualBackgroundEnabled, setVirtualBackgroundEnabled] = useState(false)
-    const [isUserAudience, setIsUserAudience] = useState(true);
+    // const [isUserAudience, setIsUserAudience] = useState(true);
     const [localscreenTrack, setLocalScreenTack] = useState(null);
     // const [tok, setTok] = useState('');
     const [role, setRole] = useState(UserRole.LISTENER);
@@ -606,6 +608,8 @@ const AgoraRTCProvider = ({ children }) => {
                 role,
                 updateRole,
                 currentSpeaker,
+                isUserAudience,
+                setIsUserAudience,
                 setBackgroundBlurring,
                 setBackgroundColor,
                 remoteUsersMap,

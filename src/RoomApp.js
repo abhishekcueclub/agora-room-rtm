@@ -26,7 +26,7 @@ import { useAgoraScreenShare } from "./hooks/AgoraRTCScreenShareProvider";
 
 
 
-// export const client = AgoraRTC.createClient({ codec: "h264", mode: "rtc" });
+//export const client = AgoraRTC.createClient({ codec: "h264", mode: "live" });
 // Create a VirtualBackgroundExtension instance
 
 // export const chatClient = AgoraRTM.createInstance("64dfb90f167841ceb1b3eadf38401");
@@ -122,6 +122,7 @@ export default function RoomApp() {
     // isSharingEnabled,
     // localscreenTrack,
     // handleScreenShareClick,
+    setIsUserAudience,
     currentSpeaker,
     setBackgroundBlurring,
     setBackgroundColor,
