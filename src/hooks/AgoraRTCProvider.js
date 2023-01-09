@@ -501,68 +501,69 @@ const AgoraRTCProvider = ({ children }) => {
     // eslint-disable-next-line
     const sortUserOnJoinRemoveAndVideoStateChange = () => {
 
+        // sorting is not needed in case of web
 
-        // Get indexOf of video disabled user
-        const videoEnabledStateUsersId = []
-        const videoEnabledStateUsersIndex = []
-        const _ = [...Array(remoteUsersSet?.length)].map((_, idIndex) => {
-            const userId = remoteUserIndexViaIdMap?.get(idIndex)
-            const user = remoteUsersMap?.get(userId)
-            if (!user?._video_muted_) {
-                videoEnabledStateUsersId.push(userId)
-                videoEnabledStateUsersIndex.push(idIndex)
-            }
-        })
+        // // Get indexOf of video disabled user
+        // const videoEnabledStateUsersId = []
+        // const videoEnabledStateUsersIndex = []
+        // const _ = [...Array(remoteUsersSet?.length)].map((_, idIndex) => {
+        //     const userId = remoteUserIndexViaIdMap?.get(idIndex)
+        //     const user = remoteUsersMap?.get(userId)
+        //     if (!user?._video_muted_) {
+        //         videoEnabledStateUsersId.push(userId)
+        //         videoEnabledStateUsersIndex.push(idIndex)
+        //     }
+        // })
 
-        // as name suggest
-        const reverseVideoEnabledStateUsersId = videoEnabledStateUsersId?.reverse()
-        const reverseVideoEnabledStateUsersIndex = videoEnabledStateUsersIndex?.reverse()
-
-
-        let videoUsedIndex = 0
-
-        const remoteUserIndexViaIdProcess = remoteUserIndexViaIdMap !== null ? remoteUserIndexViaIdMap : new Map();
-
-        console.log("=================> * init Order the enabled Camera Index ", reverseVideoEnabledStateUsersIndex, reverseVideoEnabledStateUsersId)
+        // // as name suggest
+        // const reverseVideoEnabledStateUsersId = videoEnabledStateUsersId?.reverse()
+        // const reverseVideoEnabledStateUsersIndex = videoEnabledStateUsersIndex?.reverse()
 
 
-        const idValue = [...Array(remoteUsersSet?.length)].map((_, idIndex) => {
-            // Main List of User
-            const userId = remoteUserIndexViaIdMap?.get(idIndex)
-            const user = remoteUsersMap?.get(userId)
+        // let videoUsedIndex = 0
+
+        // const remoteUserIndexViaIdProcess = remoteUserIndexViaIdMap !== null ? remoteUserIndexViaIdMap : new Map();
+
+        // console.log("=================> * init Order the enabled Camera Index ", reverseVideoEnabledStateUsersIndex, reverseVideoEnabledStateUsersId)
 
 
-            // EnabledVideo User List in  reverse order
-
-            if (user?._video_muted_ && idIndex < reverseVideoEnabledStateUsersIndex?.length) {
-
-                console.log("=================> * Order user ", user)
-                console.log("=================> * Order the enabled Camera Index ", reverseVideoEnabledStateUsersIndex, reverseVideoEnabledStateUsersId)
+        // const idValue = [...Array(remoteUsersSet?.length)].map((_, idIndex) => {
+        //     // Main List of User
+        //     const userId = remoteUserIndexViaIdMap?.get(idIndex)
+        //     const user = remoteUsersMap?.get(userId)
 
 
-                // if (idIndex < videoEnabledStateUsersIndex?.length) {
-                const videoDisabledId = user?.uid
-                const videoEnabledUserid = reverseVideoEnabledStateUsersId[videoUsedIndex]
-                const videoEnabledUseridIndex = reverseVideoEnabledStateUsersIndex[videoUsedIndex]
-                videoUsedIndex = videoUsedIndex + 1
-                remoteUserIndexViaIdProcess.set(videoEnabledUseridIndex, videoDisabledId)
-                remoteUserIndexViaIdProcess.set(idIndex, videoEnabledUserid)
+        //     // EnabledVideo User List in  reverse order
 
-                console.log("=================> * Order the disable Camera Index ", idIndex, videoDisabledId)
-                console.log("=================> * Order the enabled Camera Index " + videoEnabledUseridIndex, videoEnabledUserid)
-                // }
-            }
+        //     if (user?._video_muted_ && idIndex < reverseVideoEnabledStateUsersIndex?.length) {
 
-        })
-
-        setRemoteUserIndexViaIdMap(remoteUserIndexViaIdProcess)
+        //         console.log("=================> * Order user ", user)
+        //         console.log("=================> * Order the enabled Camera Index ", reverseVideoEnabledStateUsersIndex, reverseVideoEnabledStateUsersId)
 
 
+        //         // if (idIndex < videoEnabledStateUsersIndex?.length) {
+        //         const videoDisabledId = user?.uid
+        //         const videoEnabledUserid = reverseVideoEnabledStateUsersId[videoUsedIndex]
+        //         const videoEnabledUseridIndex = reverseVideoEnabledStateUsersIndex[videoUsedIndex]
+        //         videoUsedIndex = videoUsedIndex + 1
+        //         remoteUserIndexViaIdProcess.set(videoEnabledUseridIndex, videoDisabledId)
+        //         remoteUserIndexViaIdProcess.set(idIndex, videoEnabledUserid)
+
+        //         console.log("=================> * Order the disable Camera Index ", idIndex, videoDisabledId)
+        //         console.log("=================> * Order the enabled Camera Index " + videoEnabledUseridIndex, videoEnabledUserid)
+        //         // }
+        //     }
+
+        // })
+
+        // setRemoteUserIndexViaIdMap(remoteUserIndexViaIdProcess)
 
 
 
-        console.log("sortUserOnJoinRemoveAndVideoStateChange----->", remoteUsersSet)
-        // eslint-disable-next-line
+
+
+        // console.log("sortUserOnJoinRemoveAndVideoStateChange----->", remoteUsersSet)
+        // // eslint-disable-next-line
 
     }
 
