@@ -22,9 +22,13 @@ const AgoraRTCProvider = ({ children }) => {
     // let USER_ID = Math.floor(Math.random() * 100000001)
     // const [userId, setUserId] = useState(null);
     const [username, setUsername] = useState("");
+    const [isUserAudience, setIsUserAudience] = useState(true);
+
     const [currentSpeaker, setCurrentSpeaker] = useState("");
 
     const [remoteUsers, setRemoteUsers] = useState([]);
+    const [removeRemoteUsers, setRemoveRemoteUsers] = useState([]);
+    const [addRemoteUsers, setAddRemoteUsers] = useState([]);
 
     // actual userId
     // const [remoteUserIds, setRemoteUserIds] = useState([]);
@@ -53,7 +57,7 @@ const AgoraRTCProvider = ({ children }) => {
     const [processor, setProcessor] = useState(null)
     // eslint-disable-next-line
     const [virtualBackgroundEnabled, setVirtualBackgroundEnabled] = useState(false)
-    const [isUserAudience, setIsUserAudience] = useState(true);
+    // const [isUserAudience, setIsUserAudience] = useState(true);
     const [localscreenTrack, setLocalScreenTack] = useState(null);
     // const [tok, setTok] = useState('');
     const [role, setRole] = useState(UserRole.LISTENER);
@@ -137,74 +141,6 @@ const AgoraRTCProvider = ({ children }) => {
 
     // Set an image as the background
     async function setBackgroundImage() {
-
-        // var image = new Image();
-        // image.onload = function () {
-        // }
-        // image.crossOrigin = "anonymous";
-        // image.src = "https://miro.medium.com/max/1200/1*q4rL_nejz22KlgfYjfIOMg.png"
-
-        // // const imgElement = document.createElement('img');
-        // // imgElement.src = 'https://miro.medium.com/max/1200/1*q4rL_nejz22KlgfYjfIOMg.png';
-        // image.width = 1000
-        // image.height = 1000
-
-        // const canvas = document.createElement("canvas");
-        // const ctx = canvas.getContext("2d");
-
-        // const image = new Image();
-        // image.src = "https://images.pexels.com/photos/12043242/pexels-photo-12043242.jpeg";
-        // image.crossOrigin = "Anonymous";
-
-        // image.onload = () => {
-        //   ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-        // };
-
-
-
-        // const canvas = document.getElementById("canvas");
-        // const ctx = canvas.getContext("2d");
-
-        // const image = new Image();
-        // image.src = "https://images.pexels.com/photos/12043242/pexels-photo-12043242.jpeg";
-        // image.addEventListener("load", () => {
-        //   ctx.drawImage(image, 0, 0, 233, 320);
-
-        //   const imageData = ctx.getImageData(10, 20, 80, 230);
-        //   ctx.putImageData(imageData, 260, 0);
-        //   ctx.putImageData(imageData, 380, 50);
-        //   ctx.putImageData(imageData, 500, 100);
-        // });
-
-
-        // if (localVideoTrack && !virtualBackgroundEnabled) {
-
-        //   let processorConst = await getProcessorInstance();
-        //   try {
-        //     processorConst.setOptions({
-        //       type: 'img', source: ctx
-        //     });
-        //     await processorConst.enable();
-        //   } catch (error) {
-        //     console.error("setBackgroundImage===>", error)
-        //   }
-        //   finally {
-        //     setVirtualBackgroundEnabled(true)
-        //   }
-        // } else {
-
-        //   let processorConst = await getProcessorInstance();
-        //   try {
-        //     await processorConst.disable();
-
-        //   } finally {
-        //     setVirtualBackgroundEnabled(false)
-        //   }
-
-        // }
-
-
-
 
     }
 
@@ -358,7 +294,9 @@ setIsUserAudience(role === UserRole.MODERATOR || role === UserRole.SPEAKER ? fal
             localVideoTrack.stop();
             localVideoTrack.close();
         }
-        setRemoteUsers([]);
+        setAddRemoteUsers([]);
+
+        // Empty all variable 
         setJoinState(false);
         await client.leave();
         if(isUserAudience){
@@ -394,27 +332,27 @@ setIsUserAudience(role === UserRole.MODERATOR || role === UserRole.SPEAKER ? fal
     //     console.log("remoteUsersSet=====>", remoteUidDataProcess)
 
     //     setRemoteUsersSet([...new Set([...remoteUidDataProcess])])
-    //     // eslint-disable-next-line
+    // eslint-disable-next-line
     // }, [remoteUsers])
 
 
     useEffect(() => {
         if (!client) return;
-        setRemoteUsers(client.remoteUsers);
+        setAddRemoteUsers(client.remoteUsers);
 
         const handleUserPublished = async (user, mediaType) => {
             await client.subscribe(user, mediaType);
             console.log("agora----handleUserPublished user===>", user)
 
             // toggle rerender while state of remoteUsers changed.
-            setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
+            setAddRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
         };
 
         const handleUserUnpublished = (user) => {
             console.log("agora----handleUserUnpublished user===>", user)
 
 
-            setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
+            setAddRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
         };
 
         /* 
@@ -422,19 +360,18 @@ setIsUserAudience(role === UserRole.MODERATOR || role === UserRole.SPEAKER ? fal
         */
         const handleUserJoined = (user) => {
             console.log("agora----handleUserJoined user===>", user)
-            setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
+            setAddRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
         };
 
         const handleUserLeft = (user) => {
             console.log("agora----handleUserLeft user===>", user)
-
-            setRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
+            setRemoveRemoteUsers((remoteUsers) => Array.from(client.remoteUsers));
         };
 
 
         const highlightingaSpeaker = (user) => {
             console.log("agora----highlightingaSpeaker user===>", user)
-            console.log("agora----highlightingaSpeaker remoteUsers===>", remoteUsers)
+            // console.log("agora----highlightingaSpeaker remoteUsers===>", addRemoteUsers)
             user.sort((a, b) => b.level - a.level)
             if (user?.length > 1) {
                 setCurrentSpeaker(user[0]?.uid)
@@ -479,41 +416,194 @@ setIsUserAudience(role === UserRole.MODERATOR || role === UserRole.SPEAKER ? fal
 
 
     useEffect(() => {
-        console.log("remoteUsersSet=====>userEffect", remoteUsersSet)
+        addUser()
+        // eslint-disable-next-line
+    }, [addRemoteUsers])
 
-    }, [remoteUsersSet])
 
 
     useEffect(() => {
-        const remoteUserProcess = remoteUsersMap !== null ? remoteUsersMap : new Map();
 
-        const remoteUserIndexViaIdProcess = remoteUserIndexViaIdMap !== null ? remoteUserIndexViaIdMap : new Map();
-
-        const remoteUidDataProcess = []
+        removeUser()
         // eslint-disable-next-line
-        let index = 0
-        remoteUsers.map((userData) => {
-            // console.log("userData====>uid", userData?.uid)
-            // console.log("userData====>", userData?.uid)
-            remoteUserProcess.set(userData?.uid, userData);
-            remoteUidDataProcess.push(userData?.uid)
-            remoteUserIndexViaIdProcess.set(index, userData?.uid);
-            index = index + 1
-        })
+    }, [removeRemoteUsers])
 
-        console.log("remoteUserIndexViaIdProcess=======>", remoteUserIndexViaIdProcess)
-        setRemoteUserIndexViaIdMap(remoteUserIndexViaIdProcess)
-        setRemoteUsersMap(remoteUserProcess)
-        console.log("remoteUsersSet=====>", remoteUidDataProcess)
 
-        setRemoteUsersSet([...new Set([...remoteUidDataProcess])])
-        // eslint-disable-next-line
-    }, [remoteUsers])
 
     const updateCameraEnabledForUser = (userId, setCameraEnabledForUser) => {
         console.log("updateCameraEnabledForUser=======>" + userId)
-        setCameraEnabledForUser(null)
+        onVideoStateChanged(userId, setCameraEnabledForUser)
     }
+
+    const addUser = () => {
+        const remoteUserProcess = remoteUsersMap !== null ? remoteUsersMap : new Map();
+        const remoteUserIndexViaIdProcess = remoteUserIndexViaIdMap !== null ? remoteUserIndexViaIdMap : new Map();
+        const remoteUidDataProcess = remoteUsersSet
+        // eslint-disable-next-line
+        let index = remoteUsersSet.length
+        console.log("addUser====index", index)
+        console.log("addUser====remoteUsersSet", remoteUsersSet.length)
+        console.log("addUser====remoteUserProcess", remoteUserProcess)
+        console.log("addUser====remoteUserIndexViaIdProcess", remoteUserIndexViaIdProcess)
+
+
+        if (remoteUsersSet.length != addRemoteUsers?.length) {
+            addRemoteUsers.map((userData) => {
+                if (!remoteUsersSet?.includes(userData?.uid)) {
+
+                    // console.log("userData====>uid", userData?.uid)
+                    // console.log("userData====>", userData?.uid)
+                    remoteUserProcess.set(userData?.uid, userData);
+                    remoteUidDataProcess.push(userData?.uid)
+                    remoteUserIndexViaIdProcess.set(index, userData?.uid);
+                    index = index + 1
+                }
+            })
+
+            console.log("remoteUserIndexViaIdProcess=======>", remoteUserIndexViaIdProcess)
+            console.log("remoteUsersSet=====>remoteUserProcess", remoteUserProcess)
+            console.log("remoteUsersSet=====>", remoteUidDataProcess)
+
+            setRemoteUserIndexViaIdMap(remoteUserIndexViaIdProcess)
+            setRemoteUsersMap(remoteUserProcess)
+            setRemoteUsersSet([...new Set([...remoteUidDataProcess])])
+            setRemoteUsers(addRemoteUsers)
+        }
+    }
+
+    const removeUser = () => {
+
+        const remoteUserProcess = remoteUsersMap !== null ? remoteUsersMap : new Map();
+        const remoteUserIndexViaIdProcess = remoteUserIndexViaIdMap !== null ? remoteUserIndexViaIdMap : new Map();
+        // eslint-disable-next-line
+
+        const getActiveUserids = removeRemoteUsers?.map((userData) => {
+            return userData?.uid
+        })
+
+        remoteUsersSet.map((userId) => {
+            if (!getActiveUserids?.includes(userId)) {
+                remoteUserProcess.delete(userId);
+                const indexOfRemovedUser = getIndexbyUserid(userId)
+
+                if (indexOfRemovedUser <= getIndexbyUserid(userId)) {
+
+                    console.log("userDataId===>indexOfRemovedUser", indexOfRemovedUser)
+
+                    const userDataId = remoteUsersSet[remoteUsersSet?.length - 1]
+                    console.log("userDataId===>", userDataId)
+                    remoteUserIndexViaIdProcess.set(indexOfRemovedUser, userDataId);
+                }
+            }
+        })
+        setRemoteUsersMap(remoteUserProcess)
+        console.log("userDataId===>getActiveUserids", getActiveUserids)
+        console.log("userDataId===>remoteUserIndexViaIdProcess", remoteUserIndexViaIdProcess)
+        setRemoteUserIndexViaIdMap(remoteUserIndexViaIdProcess)
+        setRemoteUsersSet([...new Set([...getActiveUserids])])
+        setRemoteUsers(removeRemoteUsers)
+    }
+
+    const getIndexbyUserid = (userid) => {
+        let idIndexValue = -1
+        const idValue = [...Array(remoteUsersSet?.length)].map((_, idIndex) => {
+            const id = remoteUserIndexViaIdMap?.get(idIndex)
+            if (userid === id) {
+                idIndexValue = idIndex
+            }
+
+        })
+        console.log("idIndexValue==> userid", userid)
+        console.log("idIndexValue==> remoteUserIndexViaIdMap", remoteUserIndexViaIdMap)
+        console.log("idIndexValue==>", idIndexValue)
+        return idIndexValue
+    }
+    // eslint-disable-next-line
+    const sortUserOnJoinRemoveAndVideoStateChange = () => {
+
+
+        // Get indexOf of video disabled user
+        const videoEnabledStateUsersId = []
+        const videoEnabledStateUsersIndex = []
+        const _ = [...Array(remoteUsersSet?.length)].map((_, idIndex) => {
+            const userId = remoteUserIndexViaIdMap?.get(idIndex)
+            const user = remoteUsersMap?.get(userId)
+            if (!user?._video_muted_) {
+                videoEnabledStateUsersId.push(userId)
+                videoEnabledStateUsersIndex.push(idIndex)
+            }
+        })
+
+        // as name suggest
+        const reverseVideoEnabledStateUsersId = videoEnabledStateUsersId?.reverse()
+        const reverseVideoEnabledStateUsersIndex = videoEnabledStateUsersIndex?.reverse()
+
+
+        let videoUsedIndex = 0
+
+        const remoteUserIndexViaIdProcess = remoteUserIndexViaIdMap !== null ? remoteUserIndexViaIdMap : new Map();
+
+        console.log("=================> * init Order the enabled Camera Index ", reverseVideoEnabledStateUsersIndex, reverseVideoEnabledStateUsersId)
+
+
+        const idValue = [...Array(remoteUsersSet?.length)].map((_, idIndex) => {
+            // Main List of User
+            const userId = remoteUserIndexViaIdMap?.get(idIndex)
+            const user = remoteUsersMap?.get(userId)
+
+
+            // EnabledVideo User List in  reverse order
+
+            if (user?._video_muted_ && idIndex < reverseVideoEnabledStateUsersIndex?.length) {
+
+                console.log("=================> * Order user ", user)
+                console.log("=================> * Order the enabled Camera Index ", reverseVideoEnabledStateUsersIndex, reverseVideoEnabledStateUsersId)
+
+
+                // if (idIndex < videoEnabledStateUsersIndex?.length) {
+                const videoDisabledId = user?.uid
+                const videoEnabledUserid = reverseVideoEnabledStateUsersId[videoUsedIndex]
+                const videoEnabledUseridIndex = reverseVideoEnabledStateUsersIndex[videoUsedIndex]
+                videoUsedIndex = videoUsedIndex + 1
+                remoteUserIndexViaIdProcess.set(videoEnabledUseridIndex, videoDisabledId)
+                remoteUserIndexViaIdProcess.set(idIndex, videoEnabledUserid)
+
+                console.log("=================> * Order the disable Camera Index ", idIndex, videoDisabledId)
+                console.log("=================> * Order the enabled Camera Index " + videoEnabledUseridIndex, videoEnabledUserid)
+                // }
+            }
+
+        })
+
+        setRemoteUserIndexViaIdMap(remoteUserIndexViaIdProcess)
+
+
+
+
+
+        console.log("sortUserOnJoinRemoveAndVideoStateChange----->", remoteUsersSet)
+        // eslint-disable-next-line
+
+    }
+
+
+    // useEffect(() => {
+    //     sortUserOnJoinRemoveAndVideoStateChange()
+    //     // eslint-disable-next-line
+    // }, [remoteUsers])
+
+
+    const onVideoStateChanged = (userId, setCameraEnabledForUser) => {
+        console.log("updateCameraEnabledForUser=======>" + userId)
+        setTimeout(() => {
+            sortUserOnJoinRemoveAndVideoStateChange()
+            setCameraEnabledForUser(null)
+
+        }, 3000)
+    }
+
+
+
 
 
     return (
@@ -525,6 +615,7 @@ setIsUserAudience(role === UserRole.MODERATOR || role === UserRole.SPEAKER ? fal
                 leave,
                 join,
                 remoteUsers,
+                addRemoteUsers,
                 muteVideo,
                 muteAudio,
                 muteVideoState,
@@ -537,6 +628,8 @@ setIsUserAudience(role === UserRole.MODERATOR || role === UserRole.SPEAKER ? fal
                 role,
                 updateRole,
                 currentSpeaker,
+                isUserAudience,
+                setIsUserAudience,
                 setBackgroundBlurring,
                 setBackgroundColor,
                 remoteUsersMap,

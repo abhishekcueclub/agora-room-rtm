@@ -26,7 +26,7 @@ import { useAgoraScreenShare } from "./hooks/AgoraRTCScreenShareProvider";
 
 
 
-// export const client = AgoraRTC.createClient({ codec: "h264", mode: "rtc" });
+//export const client = AgoraRTC.createClient({ codec: "h264", mode: "live" });
 // Create a VirtualBackgroundExtension instance
 
 // export const chatClient = AgoraRTM.createInstance("64dfb90f167841ceb1b3eadf38401");
@@ -41,7 +41,11 @@ export default function RoomApp() {
   const [channel, setChannel] = useState("demo_channel_a");
   // // eslint-disable-next-line
   // eslint-disable-next-line
+<<<<<<< HEAD
   const [token, setToken] = useState("007eJxTYJhfc/lWd4vggR8KgX9mXVTIb3krfkJW2uTm5D1/bdtEqjcqMJibGKaaGVoaGSYZWZikmaQkJSWnpSYlG1qaJSWnGBtbHNfZntwQyMiQzveJhZEBAkF8PoaU1Nz8+OSMxLy81Jz4RAYGADlDJRc=");
+=======
+  const [token, setToken] = useState("007eJxTYEjLjpgmlOWo8fPqfR1XWyuvi5Veu55d/PPujfWpiQl6n08oMJibGKaaGVoaGSYZWZikmaQkJSWnpSYlG1qaJSWnGBtb1E7YmdwQyMhQvZWNkZEBAkF8HoaU1Nz8+OSMxLy81BwGBgDefySP");
+>>>>>>> 1dbadc35bce5e0af4d13b2da35743fba384d0e89
 
   // let channelName = channel;
   // eslint-disable-next-line
@@ -121,6 +125,14 @@ export default function RoomApp() {
     updateUsername,
     username,
     isUserAudience,
+<<<<<<< HEAD
+=======
+    // setIsSharingEnabled,
+    // isSharingEnabled,
+    // localscreenTrack,
+    // handleScreenShareClick,
+    setIsUserAudience,
+>>>>>>> 1dbadc35bce5e0af4d13b2da35743fba384d0e89
     currentSpeaker,
     setBackgroundBlurring,
     setBackgroundColor,
@@ -755,7 +767,7 @@ useEffect(()=>{
 
               {
 
-                [...Array(remoteUsersMap?.length)].map((_, idIndex) => {
+                [...Array(remoteUsersSet?.length)].map((_, idIndex) => {
 
                   const userId = remoteUserIndexViaIdMap?.get(idIndex)
 
